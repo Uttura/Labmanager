@@ -1,16 +1,14 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy 
+import os
+from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
 def create_app():
     app =Flask(__name__)
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        SQLALCHEMY_DATABASE_URI='sqlite:///labmanager.db',
-        SQLALCHEMY_TRACK_MODIFICATIONS=False
-        )
+    app.config['SECRET_KEY'] = os.evniron.get['SECRET_KEY']
     db = SQLAlchemy(app)
     with app.app_context():
         db.create_all()
     return app
-
+load_dotenv()
 app = create_app()
 from Lm.routes import *
