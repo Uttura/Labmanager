@@ -7,3 +7,5 @@ def home():
 @app.route("/labs", methods=['GET'])
 def labs():
     return render_template('labs.html')
+@app.route("/register", methods = ['GET', 'POST'])
+def register():
