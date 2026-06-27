@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, Email, Length, ValidationError, Equ
 from Lm.models import User
 
 class RegisterForm(FlaskForm):
-    username = StringField('username', validators=[DataRequired(), Length(min=3, max=20),])
+    username = StringField('username', validators=[DataRequired(), Length(min=3, max=20)])
     email = StringField('email',validators=[DataRequired(), Email()])
     password = PasswordField('password', validators=[DataRequired()])
     confirm_password = PasswordField('confirm_password', validators=[DataRequired(), EqualTo('password', message="Password must match.")])
@@ -18,7 +18,6 @@ class RegisterForm(FlaskForm):
         if user:
             raise ValidationError('Email is already registered.')
 class LoginForm(FlaskForm):
-    username = StringField('username', validators=[DataRequired(), Length(min=3, max=20),])
-    email = StringField('email',validators=[DataRequired(), Email()])
+    email = StringField('email',validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
-    submit = SubmitField('Register')
+    submit = SubmitField('Login')

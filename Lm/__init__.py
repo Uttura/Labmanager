@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
+from flask_login import LoginManager
 import os
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
@@ -10,10 +11,14 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=os.environ.get('SQLALCHEMY_TRACK_MODIFICATIONS')
     db = SQLAlchemy(app)
     csrf = CSRFProtect(app)
-    return app, db,csrf
+    login_manager = LoginManager(app)
+    return app, db,csrf,login_manager
 load_dotenv()
-app,db,csrf = create_app()
+app,db,csrf, login_manager = create_app()
 from Lm import models
+@login_manager.user_loader
+def load_user(user_id):
+      return User.query.get(user_id)
 with app.app_context():
         db.create_all()
 from Lm.routes import *

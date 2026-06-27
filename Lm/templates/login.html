@@ -1,7 +1,40 @@
 {%extends "layouts.html" %}
-{%block title%} Login {%endblock%}
+{%block title%} Register {%endblock%}
 {%block content%}
+    <form method="Post">
+        {{form.hidden_tag()}}
+        <div class="container">
 
-    <h1>Login</h1>
+            <div class="form-group">
+                {{form.email.label(class="form-label")}}
+                {{ form.email(class="form-control", placeholder="Enter your email")}}
+                {% if form.email.errors %}
+                    <div class="text-danger">
+                        {% for error in form.email.errors%}
+                        <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {%endif%}
+            </div>
 
+            <div class="form-group">
+                {{form.password.label(class="form-label")}}
+                {{ form.password(class="form-control", placeholder="Enter your password")}}
+                {% if form.password.errors %}
+                    <div class="text-danger">
+                        {% for error in form.password.errors%}
+                        <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {%endif%}
+            </div>
+
+            <div class="form-group">
+                {{form.submit(class="btn btn-primary")}}
+
+            </div>
+            <small id="emailHelp" class="form-text text-muted">We'll never share your detais with anyone else.</small>
+            </div>
+        </div>
+    </form>
 {%endblock%}

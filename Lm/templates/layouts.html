@@ -15,28 +15,28 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-            <li class="nav-item active">
-                <a class="nav-link" href="{{url_for('home')}}">Home </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{url_for('labs')}}">Labs</a>
-            </li>
-            
-            <!-- {{if }} -->
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Account</a>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{url_for('home')}}">Home </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Logout</a>
-                </li>
-            <!-- {{else}} -->
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('register')}}">Register</a>
-                </li>
-            
+                {%if current_user.is_authenticated%}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{url_for('labs')}}">Labs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Account</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
+                    </li>
+
+                {%else%}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{url_for('login')}}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{url_for('register')}}">Register</a>
+                    </li>
+                {%endif%}
             </ul>
         </div>
     </nav>
