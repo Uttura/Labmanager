@@ -1,0 +1,53 @@
+body {
+  background: linear-gradient(135deg, #001224 0%, #3dedf3 100%);
+  min-height: 100vh;
+  margin: 0;
+}
+
+.auth-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 70px); /* adjust 70px to your navbar height */
+  padding: 3rem 1rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;          /* <-- this is what keeps it from stretching full width */
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25);
+  background: #fff;
+}
+
+.auth-icon {
+  font-size: 2.75rem;
+  color: #6a82fb;
+}
+
+.auth-title {
+  font-weight: 700;
+}
+
+.form-control {
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.5rem;
+}
+
+.form-control:focus {
+  border-color: #6a82fb;
+  box-shadow: 0 0 0 0.2rem rgba(106, 130, 251, 0.25);
+}
+
+.btn-primary {
+  background-color: #6a82fb;
+  border-color: #6a82fb;
+  border-radius: 0.5rem;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background-color: #5a72e0;
+  border-color: #5a72e0;
+}
