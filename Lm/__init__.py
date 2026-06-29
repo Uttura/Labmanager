@@ -12,6 +12,7 @@ def create_app():
     db = SQLAlchemy(app)
     csrf = CSRFProtect(app)
     login_manager = LoginManager(app)
+    login_manager.login_view = 'login'
     return app, db,csrf,login_manager
 load_dotenv()
 app,db,csrf, login_manager = create_app()

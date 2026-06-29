@@ -13,6 +13,7 @@ class Lab(db.Model):
     lab_name = db.Column(db.String(120), nullable = False)
     lab_organization = db.Column(db.String(120), nullable = False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
+    status = db.Column(db.String(20), nullable = False)
 
     flag = db.relationship('Flag', backref='owner', lazy = True)
 class Flag(db.Model):

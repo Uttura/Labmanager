@@ -1,5 +1,5 @@
 body {
-  background: linear-gradient(135deg, #001224 0%, #3dedf3 100%);
+  background: linear-gradient(135deg, #9beaf5 0%, #000f1f 100%);
   min-height: 100vh;
   margin: 0;
 }
@@ -49,5 +49,5 @@ body {
 
 .btn-primary:hover {
   background-color: #5a72e0;
-  border-color: #5a72e0;
+  border-color: #243375;
 }
