@@ -1,185 +1,328 @@
 {%extends "layouts.html" %}
-{%block title%} Home Page {%endblock%}
+{%block title%} Dashboard {%endblock%}
 {%block content%}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-
 <section class="content">
 <div class="dash">
 <div class="container-fluid p-0">
 
-    {# ===== STREAK STATUS LOGIC ===== #}
-    {% set s = streak_days | default(0) %}
-    {% if s == 0 %}
-        {% set streak_status = "No Streak" %}
-        {% set streak_emoji = "💤" %}
-        {% set streak_color = "#9499a6" %}
-    {% elif s <= 2 %}
-        {% set streak_status = "Bad Routine" %}
-        {% set streak_emoji = "😴" %}
-        {% set streak_color = "#e15a5a" %}
-    {% elif s <= 6 %}
-        {% set streak_status = "Weak Brain" %}
-        {% set streak_emoji = "🫠" %}
-        {% set streak_color = "#f0a857" %}
-    {% elif s <= 13 %}
-        {% set streak_status = "Inconsistent" %}
-        {% set streak_emoji = "😐" %}
-        {% set streak_color = "#f0a857" %}
-    {% elif s <= 20 %}
-        {% set streak_status = "Getting There" %}
-        {% set streak_emoji = "🙂" %}
-        {% set streak_color = "#9fef00" %}
-    {% elif s <= 29 %}
-        {% set streak_status = "Consistent" %}
-        {% set streak_emoji = "💪" %}
-        {% set streak_color = "#5be3a8" %}
-    {% elif s <= 59 %}
-        {% set streak_status = "Sharp Mind" %}
-        {% set streak_emoji = "🔥" %}
-        {% set streak_color = "#ff5a36" %}
-    {% elif s <= 89 %}
-        {% set streak_status = "Dedicated Hacker" %}
-        {% set streak_emoji = "⚡" %}
-        {% set streak_color = "#ff5a36" %}
-    {% else %}
-        {% set streak_status = "Elite Operator" %}
-        {% set streak_emoji = "🏆" %}
-        {% set streak_color = "#9fef00" %}
-    {% endif %}
-
-    {# ===== ROW 1: Greeting + Streak Hero ===== #}
+    {# ══════════════════════════════════════════
+       ROW 1 — Date bubble + Recent Labs (horizontal)
+    ══════════════════════════════════════════ #}
     <div class="row g-3 mb-3">
 
-        {# Date + quick actions #}
-        <div class="col-12 col-md-5 col-xl-4">
-            <div class="card hero-date-card">
-                <div class="d-flex align-items-center gap-3 flex-wrap">
-                    <div class="date-bubble">
-                        <span class="date-day">{{ today_day | default("01") }}</span>
-                        <span class="date-month">{{ today_month | default("July") }}</span>
-                    </div>
-                    <div class="d-flex gap-2 flex-wrap align-items-center">
-                        <a href="{{ url_for('labs') }}" class="hero-btn">Manage Labs →</a>
-                    </div>
+        <div class="col-12 col-md-4 col-xl-2">
+            <div class="card hero-date-card h-100">
+                <div class="date-bubble">
+                    <span class="date-day">{{ today_day | default("02") }}</span>
+                    <span class="date-month">{{ today_month | default("July") }}</span>
                 </div>
-                <p class="hero-sub mt-3 mb-0">Welcome back, <b>{{ username | default("Admin") }}</b>. Here's what's happening today.</p>
+                <p class="hero-sub mt-3 mb-0">Welcome back, <b>{{ username | default("Admin") }}</b></p>
+                <p class="hero-sub mb-0" style="font-size:11px; margin-top:4px;">Your personal hacker dashboard.</p>
             </div>
         </div>
 
-        {# Streak hero #}
-        <div class="col-12 col-md-7 col-xl-8">
-            <div class="card hero-streak-card" style="--streak-color:{{ streak_color }};">
-                <div class="streak-left">
-                    <div class="streak-num">{{ streak_emoji }} {{ s }} day{{ 's' if s != 1 else '' }}</div>
-                    <div class="streak-label">Current Streak</div>
-                    <div class="streak-status-badge" style="color:{{ streak_color }}; border-color:{{ streak_color }}20; background:{{ streak_color }}14;">
-                        {{ streak_status }}
-                    </div>
+        <div class="col-12 col-md-8 col-xl-5">
+            <div class="card h-100">
+                <div class="card-title-row">
+                    <h2>🧪 Labs</h2>
+                    <a class="see-all" href="{{ url_for('labs') }}">See all →</a>
                 </div>
-                <div class="streak-bars">
-                    {% set weeks = streak_week_history | default([3,1,4,2,5,3,7,2,4,6,3,5,7]) %}
-                    {% for w in weeks %}
-                    <div class="streak-bar-col">
-                        <div class="streak-bar" style="height:{{ (w / 7 * 100) | int }}%; background:{{ streak_color }};"></div>
+                <div class="labs-hscroll">
+                    {% for lab in recent_labs | default([
+                        {"name":"Active Directory Recon","status":"Active","color":"#ff5a36","icon":"🛡️","flags":3},
+                        {"name":"SQL Injection Basics","status":"Active","color":"#2f6fed","icon":"💻","flags":2},
+                        {"name":"Buffer Overflow 101","status":"Locked","color":"#9499a6","icon":"🔒","flags":4},
+                        {"name":"XSS Playground","status":"Active","color":"#9fef00","icon":"🕸️","flags":1},
+                        {"name":"Privilege Escalation","status":"Active","color":"#c87dff","icon":"⬆️","flags":5}
+                    ]) %}
+                    <div class="lab-hcard">
+                        <div class="lab-hicon" style="background:{{ lab.color }}20; border-color:{{ lab.color }}40;">
+                            <span style="font-size:22px;">{{ lab.icon }}</span>
+                        </div>
+                        <div class="lab-hname">{{ lab.name }}</div>
+                        <div class="lab-hmeta">
+                            <span class="pill-tag {{ 'active' if lab.status == 'Active' else 'locked' }}">{{ lab.status }}</span>
+                            <span class="lab-flags">🚩 {{ lab.flags }}</span>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
-                <div class="streak-right">
-                    <div class="streak-stat">
-                        <span class="streak-stat-val">{{ longest_streak | default(0) }}</span>
-                        <span class="streak-stat-lbl">Best</span>
+            </div>
+        </div>
+        <div class="col-12 col-md-8 col-xl-5">
+            <div class="card gh-card">
+                <div class="gh-header">
+                    <div>
+                        <h2 class="mb-1">Activity Graph</h2>
+                        <p class="gh-sub"><b>{{ contributions_year_total | default(0) }}</b> contributions in the last year</p>
                     </div>
-                    <div class="streak-stat">
-                        <span class="streak-stat-val">{{ total_active_days | default(0) }}</span>
-                        <span class="streak-stat-lbl">Total Days</span>
+                    <div class="gh-meta-stats">
+                        <div class="gh-stat"><span class="gh-stat-val">{{ longest_streak | default(0) }}</span><span class="gh-stat-lbl">Best Streak</span></div>
+                        <div class="gh-stat"><span class="gh-stat-val">{{ streak_days | default(0) }}</span><span class="gh-stat-lbl">Current</span></div>
+                        <div class="gh-stat"><span class="gh-stat-val">{{ total_active_days | default(0) }}</span><span class="gh-stat-lbl">Total Active</span></div>
                     </div>
+                </div>
+
+                <div class="gh-scroll">
+                    <div class="gh-graph-inner">
+
+                        {# Month labels — 12 labels evenly over 53 cols #}
+                        <div class="gh-row gh-months-row">
+                            <div class="gh-day-pad"></div>
+                            {% for m in month_labels | default(["Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May","Jun","Jul"]) %}
+                            <div class="gh-month-lbl">{{ m }}</div>
+                            {% endfor %}
+                        </div>
+
+                        {# Main grid: day labels + week columns #}
+                        <div class="gh-row gh-grid-row">
+                            <div class="gh-day-labels">
+                                <span class="gh-day-lbl"></span>
+                                <span class="gh-day-lbl">Mon</span>
+                                <span class="gh-day-lbl"></span>
+                                <span class="gh-day-lbl">Wed</span>
+                                <span class="gh-day-lbl"></span>
+                                <span class="gh-day-lbl">Fri</span>
+                                <span class="gh-day-lbl"></span>
+                            </div>
+                            <div class="gh-weeks">
+                                {% for week in contribution_weeks | default([]) %}
+                                <div class="gh-week">
+                                    {% for day in week %}
+                                    {% if day is mapping %}
+                                    <div class="gh-cell {{ 'today' if day.is_today else '' }} {{ 'filler' if not day.date else '' }}"
+                                         data-level="{{ day.level | default(0) }}"
+                                         title="{{ day.date ~ ': ' ~ day.count ~ ' contribution(s)' if day.date else '' }}"></div>
+                                    {% else %}
+                                    <div class="gh-cell filler" data-level="0"></div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                {# Placeholder: 53 weeks of demo data #}
+                                {% set demo = [0,1,2,0,3,1,0,4,0,2,1,3,0,0,2,1,4,0,3,1,0,2,0,1,3,0,4,2,1,0,0,3,1,2,0,4,1,0,2,3,0,1,0,4,2,1,3,0,0,2,1,4,0] %}
+                                {% for w in range(53) %}
+                                <div class="gh-week">
+                                    {% for d in range(7) %}
+                                    <div class="gh-cell" data-level="{{ demo[(w + d) % 53] if (w * 7 + d) % 11 != 0 else 0 }}" title=""></div>
+                                    {% endfor %}
+                                </div>
+                                {% endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        {# Legend #}
+                        <div class="gh-legend-row">
+                            <span class="gh-leg-txt">Less</span>
+                            <div class="gh-cell" data-level="0"></div>
+                            <div class="gh-cell" data-level="1"></div>
+                            <div class="gh-cell" data-level="2"></div>
+                            <div class="gh-cell" data-level="3"></div>
+                            <div class="gh-cell" data-level="4"></div>
+                            <span class="gh-leg-txt">More</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+    {# ══════════════════════════════════════════
+       ROW 2 — Stats + Streak (2 numbers) + Sessions + Contribution
+    ══════════════════════════════════════════ #}
+    <div class="row g-3 mb-3">
+
+        <div class="col-6 col-sm-3 col-xl-2">
+            <div class="card stat-tile">
+                <span class="st-icon">💀</span>
+                <span class="st-val">{{ boxes_pwned | default(0) }}</span>
+                <span class="st-lbl">Boxes Pwned</span>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3 col-xl-2">
+            <div class="card stat-tile">
+                <span class="st-icon">🚩</span>
+                <span class="st-val">{{ flags_captured | default(0) }}</span>
+                <span class="st-lbl">Flags</span>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3 col-xl-2">
+            <div class="card stat-tile">
+                <span class="st-icon">🐍</span>
+                <span class="st-val">{{ script_count | default(0) }}</span>
+                <span class="st-lbl">Scripts</span>
+            </div>
+        </div>
+
+        {# Streak — just two numbers #}
+        <div class="col-6 col-sm-3 col-xl-2">
+            <div class="card streak-card h-100">
+                <div class="streak-num-block">
+                    <span class="streak-big">{{ account_days | default(0) }}</span>
+                    <span class="streak-lbl">Days Since Joined</span>
+                </div>
+                <div class="streak-divider"></div>
+                <div class="streak-num-block">
+                    <span class="streak-big accent">{{ streak_days | default(0) }}</span>
+                    <span class="streak-lbl">Day Streak</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3 col-xl-2">
+            <a class="card action-card text-decoration-none" href="{{ url_for('labs') }}">
+                <div class="action-badge" style="background:rgba(255,90,54,.18); border:1px solid rgba(255,90,54,.4);"><i class="bi bi-github"></i></div>
+                <div class="action-body">
+                    <span class="action-name">Github</span>
+                    <span class="action-sub">The storehouse of webpage source code.</span>
+                    <span class="action-sub">Just look how does this even work.</span>
+1                </div>
+                <span class="action-arrow" style="color:#ff5a36;">→</span>
+            </a>
+        </div>
+        <div class="col-6 col-sm-3 col-xl-2">
+            <a class="card action-card text-decoration-none" href="">
+                <div class="action-badge" style="background:rgba(255,90,54,.18); border:1px solid rgba(255,90,54,.4);"><i class="bi bi-github"></i></div>
+                <div class="action-body">
+                    <span class="action-name">Github</span>
+                    <span class="action-sub">The storehouse script of source.</span>
+                    <span class="action-sub">Might required the highest power for this to open.</span>
+                </div>
+                <span class="action-arrow" style="color:#ff5a36;">→</span>
+            </a>
+        </div>
+
+
+
+    </div>
+
+    {# ══════════════════════════════════════════
+       ROW 3 — Quick Actions + Platforms + Script Hub
+    ══════════════════════════════════════════ #}
+    <div class="row g-3 mb-3">
+
+        {# 3 vertical action cards (styled like platform cards) #}
+        <div class="col-12 col-md-4 col-lg-3">
+            <div class="row g-3">
+                <div class="col-12">
+                    <a class="card action-card text-decoration-none" href="{{ url_for('labs') }}">
+                        <div class="action-badge" style="background:rgba(255,90,54,.18); border:1px solid rgba(255,90,54,.4);">⚗️</div>
+                        <div class="action-body">
+                            <span class="action-name">Create Lab</span>
+                            <span class="action-sub">Spin up a new attack box</span>
+                        </div>
+                        <span class="action-arrow" style="color:#ff5a36;">→</span>
+                    </a>
+                </div>
+                <div class="col-12">
+                    <a class="card action-card text-decoration-none" href="{{ url_for('labs') }}">
+                        <div class="action-badge" style="background:rgba(91,227,168,.12); border:1px solid rgba(91,227,168,.3);">🚩</div>
+                        <div class="action-body">
+                            <span class="action-name">Add Flag</span>
+                            <span class="action-sub">Log a captured flag</span>
+                        </div>
+                        <span class="action-arrow" style="color:#5be3a8;">→</span>
+                    </a>
+                </div>
+                <div class="col-12">
+                    <a class="card action-card text-decoration-none" href="{{ url_for('labs') }}">
+                        <div class="action-badge" style="background:rgba(159,239,0,.10); border:1px solid rgba(159,239,0,.3);">🐍</div>
+                        <div class="action-body">
+                            <span class="action-name">Add Script</span>
+                            <span class="action-sub">Connect a Python tool</span>
+                        </div>
+                        <span class="action-arrow" style="color:#9fef00;">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {# Platform quick links #}
+        <div class="col-12 col-md-4 col-lg-3">
+            <div class="row g-3">
+                {% for p in platforms | default([
+                    {"name":"Hack The Box","tagline":"VM pentesting & ranked challenges","badge":"HTB","color":"#9fef00","text_color":"#0c2a00","url":"https://www.hackthebox.com"},
+                    {"name":"TryHackMe","tagline":"Guided rooms for learning offence","badge":"THM","color":"#ff4655","text_color":"#fff","url":"https://tryhackme.com"},
+                    {"name":"PortSwigger","tagline":"Free hands-on web vuln labs","badge":"PS","color":"#ff6633","text_color":"#fff","url":"https://portswigger.net/web-security"}
+                ]) %}
+                <div class="col-12">
+                    <a class="card action-card text-decoration-none" href="{{ p.url }}" target="_blank" rel="noopener">
+                        <div class="platform-badge" style="background:{{ p.color }}; color:{{ p.text_color }};">{{ p.badge }}</div>
+                        <div class="action-body">
+                            <span class="action-name">{{ p.name }}</span>
+                            <span class="action-sub">{{ p.tagline }}</span>
+                        </div>
+                        <span class="action-arrow">→</span>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# Script Hub — terminal style #}
+        <div class="col-12 col-md-4 col-lg-6">
+            <div class="card terminal-card h-100">
+                <div class="terminal-topbar">
+                    <div class="terminal-dots">
+                        <span class="tdot red"></span>
+                        <span class="tdot yellow"></span>
+                        <span class="tdot green"></span>
+                    </div>
+                    <span class="terminal-title">script_hub.py</span>
+                    <a class="see-all" href="{{ url_for('labs') }}" style="margin-left:auto;">manage →</a>
+                </div>
+                <div class="terminal-body">
+                    <div class="t-prompt"># Connected scripts — {{ script_count | default(0) }} loaded</div>
+                    {% for sc in linked_scripts | default([
+                        {"name":"port_scanner.py","description":"Fast TCP SYN scan with banner grab","last_run":"2h ago","status":"ok"},
+                        {"name":"subdomain_enum.py","description":"Brute-force DNS subdomains via wordlist","last_run":"yesterday","status":"ok"},
+                        {"name":"exploit_ms17.py","description":"EternalBlue PoC runner","last_run":"Jun 25","status":"warn"},
+                        {"name":"shell_gen.py","description":"Reverse shell one-liner generator","last_run":"Never","status":"idle"}
+                    ]) %}
+                    <div class="t-script-row">
+                        <span class="t-status-dot {{ sc.status }}"></span>
+                        <div class="t-script-info">
+                            <span class="t-script-name">{{ sc.name }}</span>
+                            <span class="t-script-desc">// {{ sc.description }}</span>
+                        </div>
+                        <div class="t-script-right">
+                            <span class="t-script-time">{{ sc.last_run }}</span>
+                            <a href="/api/run/{{ sc.name | replace('.py','') }}" class="t-run-btn">▶ run</a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="t-prompt" style="opacity:.5;">// No scripts connected yet. Add via API.</div>
+                    {% endfor %}
+                    <div class="t-cursor">█</div>
                 </div>
             </div>
         </div>
     </div>
 
-    {# ===== ROW 2: Stat tiles + Active Sessions + Donut ===== #}
-    <div class="row g-3 mb-3">
+    <div class="row g-3">
 
-        {# 4 small stat tiles stacked 2x2 #}
-        <div class="col-6 col-md-3 col-xl-2">
-            <div class="card stat-tile">
-                <span class="st-icon">🧪</span>
-                <span class="st-val">{{ total_labs | default(0) }}</span>
-                <span class="st-lbl">Total Labs</span>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 col-xl-2">
-            <div class="card stat-tile">
-                <span class="st-icon">✅</span>
-                <span class="st-val">{{ active_labs | default(0) }}</span>
-                <span class="st-lbl">Active Labs</span>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 col-xl-2">
-            <div class="card stat-tile">
-                <span class="st-icon">🚩</span>
-                <span class="st-val">{{ total_flags | default(0) }}</span>
-                <span class="st-lbl">Total Flags</span>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 col-xl-2">
-            <div class="card stat-tile">
-                <span class="st-icon">🔒</span>
-                <span class="st-val">{{ python_script | default(0) }}</span>
-                <span class="st-lbl">Python Scripts</span>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 col-xl-2">
-            <div class="card ring-card flex-fill">
-                <div class="ring-wrap">
-                    {% set pct = completion_pct | default(36) %}
-                    {% set dash = (pct / 100 * 251.2) | round(1) %}
-                    <svg viewBox="0 0 100 100" class="ring-svg">
-                        <circle cx="50" cy="50" r="40" class="ring-bg"/>
-                        <circle cx="50" cy="50" r="40" class="ring-fill" stroke-dasharray="{{ dash }} 251.2" stroke-dashoffset="0"/>
-                    </svg>
-                    <div class="ring-text">
-                        <span class="ring-pct">{{ pct }}%</span>
-                        <span class="ring-sub">Done</span>
-                    </div>
-                </div>
-                <p class="ring-label">Lab Completion</p>
-            </div>
-        </div>
-        <div class="col-6 col-md-3 col-xl-2">
-            <div class="card cta-card">
-                        <div>
-                            <h2>Add a New Lab</h2>
-                            <p>Spin up a new environment, set the flags, and publish it for your team.</p>
-                        </div>
-                        <a class="cta-btn" href="{{ url_for('labs') }}">Create Lab →</a>
-            </div>
-        </div>
-
-
-
-        {# Active Sessions — wide card #}
-        <div class="col-12 col-xl-6">
+                {# Active Sessions #}
+        <div class="col-12 col-md-8 col-xl-12">
             <div class="card h-100">
                 <div class="card-title-row">
-                    <h2 style="font-size:16px;">🖥️ Active Sessions</h2>
-                    <div class="dropdown-pill"><span class="live-dot"></span>{{ session_count | default(3) }} running</div>
+                    <h2>🖥️ Active Sessions</h2>
+                    <div class="dropdown-pill"><span class="live-dot"></span>{{ session_count | default(3) }} live</div>
                 </div>
                 <div class="session-list">
                     {% for s in active_sessions | default([
-                        {"lab":"Active Directory Recon","user":"R. Gouse","initials":"RG","elapsed":"42m","cpu":62,"ram":48,"status":"running"},
-                        {"lab":"SQL Injection Basics","user":"G. Schleifer","initials":"GS","elapsed":"1h 05m","cpu":24,"ram":31,"status":"running"},
-                        {"lab":"Buffer Overflow 101","user":"T. Marsh","initials":"TM","elapsed":"5m","cpu":8,"ram":12,"status":"idle"}
+                        {"lab":"Active Directory Recon","user":"You","initials":"ME","elapsed":"42m","cpu":62,"ram":48,"status":"running"},
+                        {"lab":"SQL Injection Basics","user":"You","initials":"ME","elapsed":"1h 05m","cpu":24,"ram":31,"status":"idle"}
                     ]) %}
                     <div class="session-row">
                         <span class="session-status {{ s.status }}"></span>
                         <div class="session-avatar">{{ s.initials }}</div>
                         <div class="session-body">
-                            <div class="session-top">
-                                <span class="session-lab">{{ s.lab }}</span>
-                                <span class="session-user">{{ s.user }}</span>
-                            </div>
+                            <div class="session-top"><span class="session-lab">{{ s.lab }}</span><span class="session-user">{{ s.user }}</span></div>
                             <div class="session-meters">
                                 <span class="meter-label">CPU</span>
                                 <div class="meter-track"><div class="meter-fill" style="width:{{ s.cpu }}%;"></div></div>
@@ -193,147 +336,14 @@
                         </div>
                     </div>
                     {% else %}
-                    <div class="session-row empty">
-                        <div class="session-body">
-                            <p class="activity-text">No labs running right now</p>
-                            <div class="activity-meta">Sessions appear here once someone starts a lab</div>
-                        </div>
-                    </div>
+                    <div class="session-row empty"><div class="session-body"><p class="activity-text">No active sessions</p></div></div>
                     {% endfor %}
                 </div>
             </div>
         </div>
-        {# Contribution heatmap (compact) + CTA stacked #}
-        <div class="col-12 col-xl-6">
-            
-            <div class="row g-3">
-                <div class="col-12">
-                    <div class="card contrib-compact">
-                        <div class="contrib-head">
-                            <h2 style="font-size:15px;">Contribution Activity</h2>
-                            <div class="dropdown-pill">📅 {{ month_label | default("This Month") }}</div>
-                        </div>
-                        <div class="contrib-total"><b>{{ contributions_total | default(0) }}</b> contributions this month</div>
-                        <div class="contrib-grid contrib-grid-compact">
-                            {% for cell in month_contributions | default([
-                                {"date":"2026-07-01","count":1,"level":1},{"date":"2026-07-02","count":0,"level":0},
-                                {"date":"2026-07-03","count":2,"level":2},{"date":"2026-07-04","count":1,"level":1},
-                                {"date":"2026-07-05","count":3,"level":3},{"date":"2026-07-06","count":1,"level":1},
-                                {"date":"2026-07-07","count":2,"level":2},{"date":"2026-07-08","count":1,"level":1},
-                                {"date":"2026-07-09","count":4,"level":4},{"date":"2026-07-10","count":2,"level":2},
-                                {"date":"2026-07-11","count":0,"level":0},{"date":"2026-07-12","count":3,"level":3},
-                                {"date":"2026-07-13","count":1,"level":1},{"date":"2026-07-14","count":5,"level":4},
-                                {"date":"2026-07-15","count":2,"level":2},{"date":"2026-07-16","count":1,"level":1},
-                                {"date":"2026-07-17","count":3,"level":3},{"date":"2026-07-18","count":1,"level":1},
-                                {"date":"2026-07-19","count":2,"level":2},{"date":"2026-07-20","count":1,"level":1},
-                                {"date":"2026-07-21","count":4,"level":4},{"date":"2026-07-22","count":2,"level":2},
-                                {"date":"2026-07-23","count":0,"level":0},{"date":"2026-07-24","count":3,"level":3},
-                                {"date":"2026-07-25","count":1,"level":1},{"date":"2026-07-26","count":2,"level":2},
-                                {"date":"2026-07-27","count":1,"level":1},{"date":"2026-07-28","count":5,"level":4},
-                                {"date":"2026-07-29","count":1,"level":1},{"date":"2026-07-30","count":1,"level":1},
-                                {"date":"2026-07-31","count":2,"level":2}
-                            ]) %}
-                            <div class="contrib-cell {{ 'today' if cell.is_today else '' }}" data-level="{{ cell.level }}" title="{{ cell.date }}: {{ cell.count }} contribution(s)"></div>
-                            {% endfor %}
-                        </div>
-                        <div class="contrib-legend">
-                            Less
-                            <div class="contrib-cell" data-level="0"></div>
-                            <div class="contrib-cell" data-level="1"></div>
-                            <div class="contrib-cell" data-level="2"></div>
-                            <div class="contrib-cell" data-level="3"></div>
-                            <div class="contrib-cell" data-level="4"></div>
-                            More
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        
-    </div>
-
-    <div class="row g-3">
-        {# Recent labs list #}
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="card h-100">
-                <div class="card-title-row">
-                    <h2 style="font-size:15px;">Recent Labs</h2>
-                    <a class="see-all" href="{{ url_for('labs') }}">See all →</a>
-                </div>
-                {% for lab in recent_labs | default([
-                    {"name":"Active Directory Recon","status":"Active","color":"#ff5a36","icon":"🛡️","rate":"3 flags"},
-                    {"name":"SQL Injection Basics","status":"Active","color":"#2f6fed","icon":"💻","rate":"2 flags"},
-                    {"name":"Buffer Overflow 101","status":"Locked","color":"#9499a6","icon":"🔒","rate":"4 flags"},
-                    {"name":"XSS Playground","status":"Active","color":"#9fef00","icon":"🕸️","rate":"1 flag"}
-                ]) %}
-                <div class="list-row">
-                    <div class="list-icon" style="background:{{ lab.color }};">{{ lab.icon }}</div>
-                    <div class="list-body">
-                        <div class="top-line">
-                            <span class="name">{{ lab.name }}</span>
-                            <span class="pill-tag {{ 'active' if lab.status == 'Active' else 'locked' }}">{{ lab.status }}</span>
-                        </div>
-                        <div class="rate">{{ lab.rate }}</div>
-                    </div>
-                    <div class="chev">›</div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        {# Platform cards stacked #}
-        <div class="col-12 col-md-6 col-lg-4">
-            <div class="row g-3 h-100">
-                {% for p in platforms | default([
-                    {"name":"Hack The Box","tagline":"VM-based pentesting & ranked challenges.","badge":"HTB","color":"#9fef00","text_color":"#0c2a00","url":"https://www.hackthebox.com"},
-                    {"name":"TryHackMe","tagline":"Gamified rooms for learning offensive security.","badge":"THM","color":"#ff4655","text_color":"#fff","url":"https://tryhackme.com"},
-                    {"name":"PortSwigger Academy","tagline":"Hands-on web vulnerability labs, free.","badge":"PS","color":"#ff6633","text_color":"#fff","url":"https://portswigger.net/web-security"}
-                ]) %}
-                <div class="col-12">
-                    <a class="card platform-card-inline text-decoration-none" href="{{ p.url }}" target="_blank" rel="noopener">
-                        <div class="platform-badge" style="background:{{ p.color }}; color:{{ p.text_color }};">{{ p.badge }}</div>
-                        <div class="platform-inline-body">
-                            <span class="platform-name" style="font-size:14px;">{{ p.name }}</span>
-                            <span class="platform-tagline">{{ p.tagline }}</span>
-                        </div>
-                        <span class="platform-link">→</span>
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-                {# ---- Script Hub + Platforms stacked ---- #}
-        <div class="col-12 col-lg-4">
-            <div class="row g-3 h-100">
- 
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-title-row">
-                            <h2 class="card-title-text">🐍 Script Hub</h2>
-                            <a class="see-all" href="#">See all →</a>
-                        </div>
-                        {% for script in linked_scripts | default([
-                            {"name":"port_scanner.py",  "description":"Fast TCP scan with banner grab","last_run":"2h ago"},
-                            {"name":"subdomain_enum.py","description":"Brute-force DNS subdomains",   "last_run":"yesterday"},
-                            {"name":"exploit_ms17.py",  "description":"EternalBlue PoC runner",       "last_run":"Jun 25"}
-                        ]) %}
-                        <div class="script-row">
-                            <div class="script-icon">🐍</div>
-                            <div class="script-body">
-                                <div class="script-name">{{ script.name }}</div>
-                                <div class="script-meta">Last run: {{ script.last_run }}</div>
-                            </div>
-                            <a href="/api/run/{{ script.name | replace('.py','') }}" class="run-btn">▶ Run</a>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
- 
-            </div>
-
 
     </div>
+
 </div>
 </div>
 </section>
