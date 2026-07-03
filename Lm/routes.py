@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, login_required, logout_user, current_user
-from Lm.forms import LoginForm, RegisterForm
+from Lm.forms import LoginForm, RegisterForm, LabForm
 from Lm import app, db
 from Lm.models import User, Lab, Flag
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -13,11 +13,38 @@ def home():
     total_flags = Flag.query.join(Lab).filter(Lab.user_id==current_user.id).count()
 
     return render_template('home.html', total_labs=total_labs, active_labs=active_labs, total_flags=total_flags)
-@login_required
+
 @app.route("/labs", methods=['GET','POST'])
+@login_required
 def labs():
     
     return render_template('labs.html')
+
+
+@app.route("/labs/new", methods=['GET', 'POST'])
+@login_required
+def labs_new():
+    form = LabForm()
+    if form.validate_on_submit():
+        if form.platform.data=='Other':
+            platform = form.other_platform.data
+        else:
+            platform = form.platform.data
+        if form.os.data=='Other':
+            os = form.other_os.data
+        else:
+            os = form.os.data
+        name = form.name.data
+        difficulty = form.difficulty.data
+        ip_address = form.ip_address.data
+        notes = form.notes.data
+        url = form.url.data
+        lab = Lab(name = name, difficulty=difficulty, ip_address=ip_address, notes=notes, url=url, platform=platform, os=os)
+        db.session.add(lab)
+        db.session.commit()
+        flash('Lab created!', 'success')
+        return redirect(url_for('labs'))
+    return render_template('add_lab.html', form=form)
 @app.route("/register", methods = ['GET', 'POST'])
 def register():
     form = RegisterForm()
