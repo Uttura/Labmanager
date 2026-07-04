@@ -31,6 +31,10 @@ html, body {
     --row4-h: 120px;
 }
 
+.container {
+    margin-left: 20px;
+}
+
 /* ═══════════════════════════════════════════════
    BASE
 ═══════════════════════════════════════════════ */
@@ -443,6 +447,14 @@ html, body {
 .btn-primary       { background-color: #6a82fb; border-color: #6a82fb; border-radius: .5rem; font-weight: 600; }
 .btn-primary:hover { background-color: #5a72e0; border-color: #243375; }
 
+.form {
+    padding: 5px;
+    padding-left: 20px;
+    margin: 2.5px;
+    background-color: #428fe200;
+
+    
+}
 /* ═══════════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════════ */

@@ -1,0 +1,82 @@
+{%extends "layouts.html" %}
+{%block title%} Labs{%endblock%}
+{%block content%}
+    <div class="form">
+        <form method="POST">
+            {{form.hidden_tag()}}
+            <div class="row">
+              <div class="col-12 col-md-4 col-lg-3">
+                <div class="card-body">
+                  {{form.name.label(class='form-label')}}
+                  {{form.name(class='form-control', placeholder='Enter the name of the lab.')}}
+                  {% if form.name.errors %}
+                  <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                      <div>{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-12 col-md-4 col-lg-4 ">
+                <div class="card-body">
+                  {{form.platform.label(class='form-label')}}
+                  {{form.platform(class='form-control', placeholder='Choose the platform.')}}
+                  {{form.other_platform.label}}
+                  {{form.other_platform(class='form-control', placeholder='Enter if you have used other platform')}}
+                  {% if form.platform.errors %}
+                  <div class="invalid-feedback">
+                    {% for error in form.platform.errors %}
+                      <div>{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-12 col-md-4 col-lg-4 ">
+                <div class="card-body">
+                  {{form.os.label(class='form-label')}}
+                  {{form.os(class='form-control', placeholder='Choose the Os.')}}
+                  {{form.other_os.label}}
+                  {{form.other_os(class='form-control', placeholder='Enter if you have used other Os')}}
+                  {% if form.os.errors %}
+                  <div class="invalid-feedback">
+                    {% for error in form.os.errors %}
+                      <div>{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-12 col-md-4 col-lg-4 ">
+                <div class="card-body">
+                  {{form.name.label(class='form-label')}}
+                  {{form.name(class='form-control', placeholder='Choose the platform.')}}
+                  {% if form.name.errors %}
+                  <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                      <div>{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-12 col-md-4 col-lg-4 ">
+                <div class="card-body">
+                  {{form.name.label(class='form-label')}}
+                  {{form.name(class='form-control', placeholder='Choose the platform.')}}
+                  {% if form.name.errors %}
+                  <div class="invalid-feedback">
+                    {% for error in form.name.errors %}
+                      <div>{{ error }}</div>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+          </div>
+        </form>
+    </div>
+
+
+{%endblock%}
