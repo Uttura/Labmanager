@@ -1,82 +1,174 @@
 {%extends "layouts.html" %}
-{%block title%} Labs{%endblock%}
+{%block title%} Add Lab {%endblock%}
 {%block content%}
-    <div class="form">
-        <form method="POST">
-            {{form.hidden_tag()}}
-            <div class="row">
-              <div class="col-12 col-md-4 col-lg-3">
-                <div class="card-body">
-                  {{form.name.label(class='form-label')}}
-                  {{form.name(class='form-control', placeholder='Enter the name of the lab.')}}
-                  {% if form.name.errors %}
-                  <div class="invalid-feedback">
-                    {% for error in form.name.errors %}
-                      <div>{{ error }}</div>
-                    {% endfor %}
-                  </div>
-                  {% endif %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<section class="content">
+<div class="dash">
+<div class="container-fluid p-0">
+
+    <div class="row justify-content-center">
+    <div class="col-12 col-xl-9">
+
+        <div class="lab-form-shell">
+
+            {# ── Header strip ── #}
+            <div class="lab-form-header">
+                <div class="lfh-icon">⚗️</div>
+                <div class="lfh-text">
+                    <h1>Create New Lab</h1>
+                    <p>Log a new box, room, or challenge you're working through.</p>
                 </div>
-              </div>
-              <div class="col-12 col-md-4 col-lg-4 ">
-                <div class="card-body">
-                  {{form.platform.label(class='form-label')}}
-                  {{form.platform(class='form-control', placeholder='Choose the platform.')}}
-                  {{form.other_platform.label}}
-                  {{form.other_platform(class='form-control', placeholder='Enter if you have used other platform')}}
-                  {% if form.platform.errors %}
-                  <div class="invalid-feedback">
-                    {% for error in form.platform.errors %}
-                      <div>{{ error }}</div>
-                    {% endfor %}
-                  </div>
-                  {% endif %}
+                <a href="{{ url_for('labs') }}" class="lfh-back">← Back to labs</a>
+            </div>
+
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+
+                {# ══════════ Section 1: Identity ══════════ #}
+                <div class="lab-section">
+                    <div class="lab-section-rail">
+                        <span class="lsr-dot"></span>
+                        <span class="lsr-line"></span>
+                    </div>
+                    <div class="lab-section-body">
+                        <div class="lab-section-heading">
+                            <span class="lsh-tag">01 · Identity</span>
+                            <h3>What is it?</h3>
+                        </div>
+
+                        <div class="field-block field-block-full">
+                            {{ form.name.label(class='form-label') }}
+                            {{ form.name(class='form-control' + (' is-invalid' if form.name.errors else ''), placeholder='e.g. Active Directory Recon') }}
+                            {% if form.name.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.name.errors %}<div>{{ error }}</div>{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <div class="col-12 col-md-4 col-lg-4 ">
-                <div class="card-body">
-                  {{form.os.label(class='form-label')}}
-                  {{form.os(class='form-control', placeholder='Choose the Os.')}}
-                  {{form.other_os.label}}
-                  {{form.other_os(class='form-control', placeholder='Enter if you have used other Os')}}
-                  {% if form.os.errors %}
-                  <div class="invalid-feedback">
-                    {% for error in form.os.errors %}
-                      <div>{{ error }}</div>
-                    {% endfor %}
-                  </div>
-                  {% endif %}
+
+                {# ══════════ Section 2: Environment ══════════ #}
+                <div class="lab-section">
+                    <div class="lab-section-rail">
+                        <span class="lsr-dot"></span>
+                        <span class="lsr-line"></span>
+                    </div>
+                    <div class="lab-section-body">
+                        <div class="lab-section-heading">
+                            <span class="lsh-tag">02 · Environment</span>
+                            <h3>Where does it live?</h3>
+                        </div>
+
+                        <div class="field-grid">
+                            <div class="field-block">
+                                {{ form.platform.label(class='form-label') }}
+                                {{ form.platform(id='platform', onchange="toggleOther('platform','other-platform-wrapper')", class='form-control' + (' is-invalid' if form.platform.errors else '')) }}
+                                {% if form.platform.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.platform.errors %}<div>{{ error }}</div>{% endfor %}
+                                </div>
+                                {% endif %}
+                                <div id="other-platform-wrapper" class="field-reveal" style="display:none;">
+                                    {{ form.other_platform.label(class='form-label') }}
+                                    {{ form.other_platform(class='form-control', placeholder='Name the platform') }}
+                                </div>
+                            </div>
+
+                            <div class="field-block">
+                                {{ form.os.label(class='form-label') }}
+                                {{ form.os(id='os', onchange="toggleOther('os','other-os-wrapper')", class='form-control' + (' is-invalid' if form.os.errors else '')) }}
+                                {% if form.os.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.os.errors %}<div>{{ error }}</div>{% endfor %}
+                                </div>
+                                {% endif %}
+                                <div id="other-os-wrapper" class="field-reveal" style="display:none;">
+                                    {{ form.other_os.label(class='form-label') }}
+                                    {{ form.other_os(class='form-control', placeholder='Name the OS') }}
+                                </div>
+                            </div>
+
+                            <div class="field-block">
+                                {{ form.difficulty.label(class='form-label') }}
+                                {{ form.difficulty(class='form-control') }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <div class="col-12 col-md-4 col-lg-4 ">
-                <div class="card-body">
-                  {{form.name.label(class='form-label')}}
-                  {{form.name(class='form-control', placeholder='Choose the platform.')}}
-                  {% if form.name.errors %}
-                  <div class="invalid-feedback">
-                    {% for error in form.name.errors %}
-                      <div>{{ error }}</div>
-                    {% endfor %}
-                  </div>
-                  {% endif %}
+
+                {# ══════════ Section 3: Access ══════════ #}
+                <div class="lab-section">
+                    <div class="lab-section-rail">
+                        <span class="lsr-dot"></span>
+                        <span class="lsr-line"></span>
+                    </div>
+                    <div class="lab-section-body">
+                        <div class="lab-section-heading">
+                            <span class="lsh-tag">03 · Access</span>
+                            <h3>How do you reach it?</h3>
+                        </div>
+
+                        <div class="field-grid field-grid-2">
+                            <div class="field-block">
+                                {{ form.ip_address.label(class='form-label') }}
+                                <div class="input-icon-wrap">
+                                    <i class="bi bi-hdd-network input-icon"></i>
+                                    {{ form.ip_address(class='form-control has-icon', placeholder='10.10.10.10') }}
+                                </div>
+                            </div>
+                            <div class="field-block">
+                                {{ form.url.label(class='form-label') }}
+                                <div class="input-icon-wrap">
+                                    <i class="bi bi-link-45deg input-icon"></i>
+                                    {{ form.url(class='form-control has-icon', placeholder='https://...') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <div class="col-12 col-md-4 col-lg-4 ">
-                <div class="card-body">
-                  {{form.name.label(class='form-label')}}
-                  {{form.name(class='form-control', placeholder='Choose the platform.')}}
-                  {% if form.name.errors %}
-                  <div class="invalid-feedback">
-                    {% for error in form.name.errors %}
-                      <div>{{ error }}</div>
-                    {% endfor %}
-                  </div>
-                  {% endif %}
+
+                {# ══════════ Section 4: Notes ══════════ #}
+                <div class="lab-section lab-section-last">
+                    <div class="lab-section-rail">
+                        <span class="lsr-dot"></span>
+                    </div>
+                    <div class="lab-section-body">
+                        <div class="lab-section-heading">
+                            <span class="lsh-tag">04 · Notes</span>
+                            <h3>Anything worth remembering?</h3>
+                        </div>
+
+                        <div class="field-block field-block-full">
+                            {{ form.notes.label(class='form-label') }}
+                            {{ form.notes(class='form-control', rows='5', placeholder='Recon notes, creds found, exploitation path...') }}
+                        </div>
+                    </div>
                 </div>
-              </div>
-          </div>
-        </form>
+
+                <div class="lab-form-footer">
+                    <a href="{{ url_for('labs') }}" class="btn-cancel">Cancel</a>
+                    {{ form.submit(class='btn-submit-lab') }}
+                </div>
+            </form>
+        </div>
+
+    </div>
     </div>
 
+</div>
+</div>
+</section>
 
+<script>
+function toggleOther(selectId, wrapperId) {
+    let select = document.getElementById(selectId);
+    let wrapper = document.getElementById(wrapperId);
+    wrapper.style.display = (select.value === "Other") ? "block" : "none";
+}
+window.addEventListener('DOMContentLoaded', function () {
+    toggleOther('platform', 'other-platform-wrapper');
+    toggleOther('os', 'other-os-wrapper');
+});
+</script>
 {%endblock%}

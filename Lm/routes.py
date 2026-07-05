@@ -14,11 +14,12 @@ def home():
 
     return render_template('home.html', total_labs=total_labs, active_labs=active_labs, total_flags=total_flags)
 
-@app.route("/labs", methods=['GET','POST'])
+@app.route("/labs", methods=['GET'])
 @login_required
 def labs():
-    
-    return render_template('labs.html')
+    labs = Lab.query.filter_by(user_id=current_user.id).order_by(Lab.date_started.desc()).all()
+
+    return render_template('labs.html', labs=labs)
 
 
 @app.route("/labs/new", methods=['GET', 'POST'])
@@ -39,12 +40,18 @@ def labs_new():
         ip_address = form.ip_address.data
         notes = form.notes.data
         url = form.url.data
-        lab = Lab(name = name, difficulty=difficulty, ip_address=ip_address, notes=notes, url=url, platform=platform, os=os)
+        user_id=current_user.id
+        lab = Lab(name = name, difficulty=difficulty, ip_address=ip_address, notes=notes, url=url, platform=platform, os=os, user_id=user_id)
         db.session.add(lab)
         db.session.commit()
         flash('Lab created!', 'success')
         return redirect(url_for('labs'))
     return render_template('add_lab.html', form=form)
+@app.route("/labs/<int:lab_id>", methods=['GET', 'POST'])
+@login_required
+def labs_edit():
+    return render_template(url_for('edit_lab.html'))
+
 @app.route("/register", methods = ['GET', 'POST'])
 def register():
     form = RegisterForm()

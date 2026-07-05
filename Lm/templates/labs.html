@@ -1,7 +1,172 @@
 {%extends "layouts.html" %}
-{%block title%} Labs{%endblock%}
+{%block title%} Labs {%endblock%}
 {%block content%}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<section class="content">
+<div class="dash">
+<div class="container-fluid p-0">
 
-    <h1>Labs</h1>
+    {# ── Page header ── #}
+    <div class="labs-page-header">
+        <div class="lph-title">
+            <div class="lph-icon">🧪</div>
+            <div>
+                <h1>Your Labs</h1>
+                <p>{{ labs|length }} lab{{ 's' if labs|length != 1 else '' }} tracked</p>
+            </div>
+        </div>
+        <div class="labs-header-actions">
+            <a href="{{ url_for('labs_new') }}" class="btn-cancel">
+                <i class="bi bi-plus-lg"></i> Quick Add
+            </a>
+            <a href="{{ url_for('labs_new') }}" class="btn-submit-lab">
+                <i class="bi bi-plus-circle"></i> Create Lab
+            </a>
+        </div>
+    </div>
 
+    {# ── Stats strip ── #}
+    <div class="labs-stats-strip">
+        <div class="lstat">
+            <span class="lstat-icon">📦</span>
+            <span class="lstat-val">{{ labs|length }}</span>
+            <span class="lstat-lbl">Total</span>
+        </div>
+        <div class="lstat">
+            <span class="lstat-icon" style="color:var(--teal);">●</span>
+            <span class="lstat-val">{{ labs|selectattr('status','equalto','Active')|list|length }}</span>
+            <span class="lstat-lbl">Active</span>
+        </div>
+        <div class="lstat">
+            <span class="lstat-icon">💀</span>
+            <span class="lstat-val">{{ labs|selectattr('status','equalto','Pwned')|list|length }}</span>
+            <span class="lstat-lbl">Pwned</span>
+        </div>
+        <div class="lstat">
+            <span class="lstat-icon" style="color:var(--accent);">▲</span>
+            <span class="lstat-val">{{ labs|selectattr('difficulty','equalto','Hard')|list|length }}</span>
+            <span class="lstat-lbl">Hard</span>
+        </div>
+    </div>
+
+    {# ── Search / filter bar ── #}
+    <div class="labs-filter-bar">
+        <div class="lfb-search">
+            <i class="bi bi-search"></i>
+            <input type="text" id="labSearch" placeholder="Search labs by name or platform...">
+        </div>
+        <div class="lfb-pills">
+            <button class="lfb-pill active" data-filter="all">All</button>
+            <button class="lfb-pill" data-filter="Active">Active</button>
+            <button class="lfb-pill" data-filter="Pwned">Pwned</button>
+        </div>
+    </div>
+
+    {# ── Labs list ── #}
+    <div class="labs-list" id="labsList">
+        {% for lab in labs %}
+        <a href="{{ url_for('labs_edit', lab_id=lab.id) }}"
+           class="lab-row status-border-{{ lab.status|lower }}"
+           data-name="{{ lab.name|lower }}"
+           data-platform="{{ lab.platform|lower }}"
+           data-status="{{ lab.status }}">
+
+            <div class="lab-row-icon">
+                {% if lab.platform == 'Hack The Box' %}🖥️
+                {% elif lab.platform == 'Try Hack Me' %}🎓
+                {% elif lab.platform == 'Port Swigger' %}🕷️
+                {% else %}🧪
+                {% endif %}
+            </div>
+
+            <div class="lab-row-main">
+                <div class="lab-row-name">{{ lab.name }}</div>
+                <div class="lab-row-meta">
+                    <span class="lab-meta-chip">
+                        <i class="bi bi-diagram-3"></i> {{ lab.platform }}
+                    </span>
+                    <span class="lab-meta-chip">
+                        {% if lab.os == 'Windows' %}<i class="bi bi-windows"></i>
+                        {% elif lab.os == 'Linux' %}<i class="bi bi-ubuntu"></i>
+                        {% elif lab.os == 'Mac Os' %}<i class="bi bi-apple"></i>
+                        {% else %}<i class="bi bi-hdd"></i>
+                        {% endif %}
+                        {{ lab.os }}
+                    </span>
+                    {% if lab.difficulty %}
+                    <span class="diff-badge diff-{{ lab.difficulty|lower }}">{{ lab.difficulty }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="lab-row-status">
+                {% if lab.status == 'Pwned' %}
+                <span class="status-badge status-pwned"><i class="bi bi-skull"></i> Pwned</span>
+                {% elif lab.status == 'Active' %}
+                <span class="status-badge status-active"><span class="status-dot"></span> Active</span>
+                {% else %}
+                <span class="status-badge status-idle"><i class="bi bi-hourglass-split"></i> {{ lab.status }}</span>
+                {% endif %}
+                <i class="bi bi-chevron-right lab-row-arrow"></i>
+            </div>
+
+        </a>
+        {% else %}
+        <div class="labs-empty">
+            <div class="labs-empty-icon">🧪</div>
+            <h3>No labs yet</h3>
+            <p>Start tracking your first box, room, or challenge.</p>
+            <a href="{{ url_for('labs_new') }}" class="btn-submit-lab">
+                <i class="bi bi-plus-circle"></i> Create your first lab
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="labs-no-results" id="noResults" style="display:none;">
+        <p>No labs match your search.</p>
+    </div>
+
+</div>
+</div>
+</section>
+
+<script>
+// Lightweight client-side search/filter — no server round trip needed
+(function () {
+    const searchInput = document.getElementById('labSearch');
+    const pills = document.querySelectorAll('.lfb-pill');
+    const rows = document.querySelectorAll('.lab-row');
+    const noResults = document.getElementById('noResults');
+    let activeFilter = 'all';
+
+    function applyFilters() {
+        const query = searchInput.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const matchesSearch = !query ||
+                row.dataset.name.includes(query) ||
+                row.dataset.platform.includes(query);
+            const matchesFilter = activeFilter === 'all' || row.dataset.status === activeFilter;
+
+            const show = matchesSearch && matchesFilter;
+            row.style.display = show ? 'flex' : 'none';
+            if (show) visibleCount++;
+        });
+
+        noResults.style.display = (visibleCount === 0 && rows.length > 0) ? 'block' : 'none';
+    }
+
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+    pills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            pills.forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            activeFilter = pill.dataset.filter;
+            applyFilters();
+        });
+    });
+})();
+</script>
 {%endblock%}
