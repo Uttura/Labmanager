@@ -65,7 +65,7 @@
     {# ── Labs list ── #}
     <div class="labs-list" id="labsList">
         {% for lab in labs %}
-        <a href="{{ url_for('labs_edit', lab_id=lab.id) }}"
+        <a href="{{ url_for('labs_view', lab_id=lab.id) }}"
            class="lab-row status-border-{{ lab.status|lower }}"
            data-name="{{ lab.name|lower }}"
            data-platform="{{ lab.platform|lower }}"

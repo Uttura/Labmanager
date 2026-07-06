@@ -1,0 +1,132 @@
+{%extends "layouts.html" %}
+{%block title%} {{ lab.name }} {%endblock%}
+{%block content%}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<section class="content">
+<div class="dash">
+<div class="container-fluid p-0">
+
+    {# ── Top bar ── #}
+    <div class="article-top-bar">
+        <a href="{{ url_for('labs') }}" class="view-breadcrumb-link">
+            <i class="bi bi-arrow-left"></i> Back to Labs
+        </a>
+        <div class="article-actions">
+            <a href="{{ url_for('labs_update', lab_id=lab.id) }}" class="btn-cancel">
+                <i class="bi bi-flag"></i><span>Add Flags</span>
+            </a>
+            <a href="{{ url_for('labs_update', lab_id=lab.id) }}" class="btn-submit-lab">
+                <i class="bi bi-pencil"></i><span>Update Info</span>
+            </a>
+            <a href="{{ url_for('labs_delete', lab_id=lab.id) }}" class="btn-submit-lab">
+                <i class="bi bi-pencil"></i><span>Delete Lab</span>
+            </a>
+        </div>
+    </div>
+
+    {# ══════════ Single unified article card ══════════ #}
+    <article class="lab-article status-border-{{ lab.status|lower }}">
+
+        {# ── Header row: date left / title center / status+difficulty right ── #}
+        <header class="article-header">
+            <div class="article-header-row">
+                <div class="ah-side ah-left">
+                    {% if lab.date_started %}
+                    <span class="ah-dat ">
+                        <i class="bi bi-calendar3"></i>
+                        {{ lab.date_started.strftime('%b %d, %Y') if lab.date_started.strftime else lab.date_started }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="ah-center">
+                    <div class="article-kicker">
+                    {% if lab.platform == 'Hack The Box' %}
+                    <span class="plat-badge" style="background:#9fef00; color:#0c2a00;">HTB</span>
+                    {% elif lab.platform == 'Try Hack Me' %}
+                    <span class="plat-badge" style="background:#ff4655; color:#fff;">THM</span>
+                    {% elif lab.platform == 'Port Swigger' %}
+                    <span class="plat-badge" style="background:#ff6633; color:#fff;">PS</span>
+                    {% else %}
+                    <span class="plat-badge plat-badge-fallback">🖥️</span>
+                    {% endif %}
+                    {{ lab.other_platform if lab.platform == 'Other' and lab.other_platform else lab.platform }}
+                    <span class="kicker-dot">·</span>
+                    {{ lab.other_os if lab.os == 'Other' and lab.other_os else lab.os }}
+                </div>
+                    <h1>{{ lab.name }}</h1>
+                </div>
+
+                <div class="ah-side ah-right">
+                    {% if lab.status == 'Pwned' %}
+                    <span class="status-badge status-pwned"><i class="bi bi-skull"></i> Pwned</span>
+                    {% elif lab.status == 'Active' %}
+                    <span class="status-badge status-active"><span class="status-dot"></span> Active</span>
+                    {% else %}
+                    <span class="status-badge status-idle"><i class="bi bi-hourglass-split"></i> {{ lab.status }}</span>
+                    {% endif %}
+                    {% if lab.difficulty %}
+                    <span class="diff-badge diff-{{ lab.difficulty|lower }}">{{ lab.difficulty }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </header>
+
+        <hr class="article-rule">
+
+        {# ── Access ── #}
+        <section class="article-section">
+            <h2 class="article-h2"><i class="bi bi-hdd-network"></i> Access</h2>
+            <dl class="article-dl">
+                <div class="dl-row">
+                    <dt>IP Address</dt>
+                    <dd>
+                        {% if lab.ip_address %}<span class="mono">{{ lab.ip_address }}</span>
+                        {% else %}<span class="dl-empty">Not set</span>{% endif %}
+                    </dd>
+                </div>
+                <div class="dl-row">
+                    <dt>URL</dt>
+                    <dd>
+                        {% if lab.url %}
+                        <a href="{{ lab.url }}" target="_blank" rel="noopener" class="dl-link">
+                            {{ lab.url }} <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                        {% else %}<span class="dl-empty">Not set</span>{% endif %}
+                    </dd>
+                </div>
+            </dl>
+        </section>
+
+        {# ── Flags ── #}
+        <section class="article-section">
+            <h2 class="article-h2"><i class="bi bi-flag"></i> Flags</h2>
+            <dl class="article-dl">
+                <div class="dl-row">
+                    <dt>Flags</dt>
+                    <!-- <dd>
+                        {% if lab.user_flag %}
+                        <code class="flag-inline">{{ lab.flag }}</code>
+                        <i class="bi bi-check-circle-fill flag-check user"></i>
+                        {% else %}<span class="dl-empty">Not captured yet</span>{% endif %}
+                    </dd> -->
+                </div>
+            </dl>
+        </section>
+
+        {# ── Notes ── #}
+        <section class="article-section">
+            <h2 class="article-h2"><i class="bi bi-journal-text"></i> Notes</h2>
+            {% if lab.notes %}
+            <pre class="article-notes">{{ lab.notes }}</pre>
+            {% else %}
+            <p class="dl-empty">No notes recorded for this lab yet.</p>
+            {% endif %}
+        </section>
+
+    </article>
+
+</div>
+</div>
+</section>
+{%endblock%}

@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import render_template, flash, redirect, url_for, request,abort
 from flask_login import login_user, login_required, logout_user, current_user
 from Lm.forms import LoginForm, RegisterForm, LabForm
 from Lm import app, db
@@ -11,7 +11,6 @@ def home():
     total_labs = Lab.query.filter_by(user_id=current_user.id).count()
     active_labs = Lab.query.filter_by(user_id=current_user.id, status='in-progress').count()
     total_flags = Flag.query.join(Lab).filter(Lab.user_id==current_user.id).count()
-
     return render_template('home.html', total_labs=total_labs, active_labs=active_labs, total_flags=total_flags)
 
 @app.route("/labs", methods=['GET'])
@@ -49,8 +48,27 @@ def labs_new():
     return render_template('add_lab.html', form=form)
 @app.route("/labs/<int:lab_id>", methods=['GET', 'POST'])
 @login_required
-def labs_edit():
-    return render_template(url_for('edit_lab.html'))
+def labs_view(lab_id):
+    lab = Lab.query.filter_by(user_id=current_user.id,id = lab_id).first()
+    if lab== None:
+        return redirect(abort(404))
+    return render_template('view_lab.html',lab=lab)
+
+@app.route("/labs/<int:lab_id>/update")
+@login_required
+def labs_update(lab_id):
+    lab=Lab.query.filter_by(user_id=current_user.id,id=lab_id).first()
+
+@app.route("/labs/<int:lab_id>/delete")
+@login_required
+def labs_delete(lab_id):
+    lab=Lab.query.filter_by(user_id=current_user.id,id=lab_id).first()
+    if lab:
+        db.session.delete(lab)
+        db.session.commit()
+        flash('Lab Deleted','fail')
+        return redirect(url_for('labs'))
+    return render_template('view_lab.html')
 
 @app.route("/register", methods = ['GET', 'POST'])
 def register():
