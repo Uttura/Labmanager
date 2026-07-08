@@ -32,3 +32,7 @@ class LabForm(FlaskForm):
     notes = TextAreaField('Notes',validators=[Optional()])
     url = StringField('Url',validators=[Optional()])
     submit = SubmitField('Add Lab')
+class FlagForm(FlaskForm):
+    flag_value = StringField('Flag',validators=[DataRequired()])
+    flag_type = SelectField('Flag Type',validate_choice=[DataRequired()], choices=[('Root', 'Root'), ('User','User'), ('Other','Other')])
+    submit = SubmitField('Add_Flag')

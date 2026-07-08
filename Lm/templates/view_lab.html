@@ -12,7 +12,7 @@
             <i class="bi bi-arrow-left"></i> Back to Labs
         </a>
         <div class="article-actions">
-            <a href="{{ url_for('labs_update', lab_id=lab.id) }}" class="btn-cancel">
+            <a id="spn" style="display: block;" href="#" class="btn-cancel" onclick="includeform(); return false;">
                 <i class="bi bi-flag"></i><span>Add Flags</span>
             </a>
             <a href="{{ url_for('labs_update', lab_id=lab.id) }}" class="btn-submit-lab">
@@ -102,14 +102,35 @@
         <section class="article-section">
             <h2 class="article-h2"><i class="bi bi-flag"></i> Flags</h2>
             <dl class="article-dl">
+
                 <div class="dl-row">
                     <dt>Flags</dt>
-                    <!-- <dd>
-                        {% if lab.user_flag %}
-                        <code class="flag-inline">{{ lab.flag }}</code>
-                        <i class="bi bi-check-circle-fill flag-check user"></i>
-                        {% else %}<span class="dl-empty">Not captured yet</span>{% endif %}
-                    </dd> -->
+                    <dd>  
+                        {% if flag%}
+                            {%for flags in flag%}
+                                <code class="flag-inline">{{ flags.flag_value }}</code>
+                                <i class="bi bi-check-circle-fill flag-check {{flags.flag_type}}"></i>
+                            {%endfor%}
+                        {% else %}
+                            <span class="dl-empty">Not captured yet</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div id="add_flag" style="display: none;">
+                    <form method="POST" action="{{url_for('add_flag',lab_id=lab.id)}}">
+                        {{form.hidden_tag()}}
+                        <div class="bi bi-flag">
+                            <div class="field-block field-block-full">
+                                {{form.flag_value.label(class="form-label")}}
+                                {{form.flag_value(class="form-control",placeholder="Enter the flag." )}}
+                            </div>
+                            <div class="field-block field-block-full">
+                                {{form.flag_type.label(class="form-label")}}
+                                {{form.flag_type(class="form-control",placeholder="Select the Flag's type." )}}
+                            </div>
+                            {{form.submit(class="btn-cancel bi bi-flag")}}
+                        </div>
+                    </form>
                 </div>
             </dl>
         </section>
@@ -129,4 +150,10 @@
 </div>
 </div>
 </section>
+<script>
+function includeform(){
+    document.getElementById('spn').style.display= 'none';
+    document.getElementById('add_flag').style.display= 'block';
+}
+</script>
 {%endblock%}

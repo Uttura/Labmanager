@@ -999,6 +999,7 @@ html, body {
 .flag-check { font-size: 13px; }
 .flag-check.user { color: var(--teal); }
 .flag-check.root { color: var(--accent); }
+.flag-check.other { color: var(--text); }
 
 .article-notes {
     font-family: var(--mono);

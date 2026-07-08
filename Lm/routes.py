@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request,abort
 from flask_login import login_user, login_required, logout_user, current_user
-from Lm.forms import LoginForm, RegisterForm, LabForm
+from Lm.forms import LoginForm, RegisterForm, LabForm, FlagForm
 from Lm import app, db
 from Lm.models import User, Lab, Flag
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -46,13 +46,34 @@ def labs_new():
         flash('Lab created!', 'success')
         return redirect(url_for('labs'))
     return render_template('add_lab.html', form=form)
-@app.route("/labs/<int:lab_id>", methods=['GET', 'POST'])
+@app.route("/labs/<int:lab_id>", methods=['GET'])
 @login_required
 def labs_view(lab_id):
     lab = Lab.query.filter_by(user_id=current_user.id,id = lab_id).first()
     if lab== None:
-        return redirect(abort(404))
-    return render_template('view_lab.html',lab=lab)
+        abort(404)
+    flag = Flag.query.filter_by(lab_id=lab_id).all()
+    
+    form = FlagForm()
+    return render_template('view_lab.html',lab=lab,form=form,flag=flag)
+
+@app.route("/labs/<int:lab_id>/add_flag", methods=['POST'])
+@login_required
+def add_flag(lab_id):
+    form = FlagForm()
+    lab=Lab.query.filter_by(user_id=current_user.id,id=lab_id).first()
+    if lab:
+        if form.validate_on_submit():
+            flags = Flag(flag_value=form.flag_value.data,flag_type=form.flag_type.data, lab_id=lab_id)
+            db.session.add(flags)
+            db.session.commit()
+            flash('Flag added sucessfuly!', 'success')
+            return redirect(url_for('labs_view',lab_id=lab_id))
+        else:
+            flash('Flag value is required.', 'danger')
+            return redirect(url_for('labs_view', lab_id=lab_id))
+    else:
+        abort(403)
 
 @app.route("/labs/<int:lab_id>/update")
 @login_required

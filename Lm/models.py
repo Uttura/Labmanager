@@ -22,10 +22,11 @@ class Lab(db.Model):
     url = db.Column(db.String(255), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
     status = db.Column(db.String(20), nullable = False, default='Active')
-    flags = db.relationship('Flag', backref='lab', lazy = True)
+    flags = db.relationship('Flag', backref='lab', lazy = True, cascade='all, delete-orphan')
 class Flag(db.Model):
     flag_id = db.Column(db.Integer, primary_key = True)
     flag_value = db.Column(db.String(200), nullable = False)
+    flag_type = db.Column(db.String(20),nullable=False)
     lab_id = db.Column(db.Integer, db.ForeignKey('lab.id'), nullable = False)
 
 
