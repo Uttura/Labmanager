@@ -148,7 +148,11 @@
 
                 <div class="lab-form-footer">
                     <a href="{{ url_for('labs') }}" class="btn-cancel">Cancel</a>
-                    {{ form.submit(class='btn-submit-lab') }}
+                    {%if edit_mode%}
+                        {{ form.submit(class='btn-submit-lab', value="Update Lab") }}
+                    {%else%}
+                        {{ form.submit(class='btn-submit-lab', value="Add Lab") }}
+                    {%endif%}
                 </div>
             </form>
         </div>

@@ -14,10 +14,10 @@
         <div class="col-12 col-md-4 col-xl-2">
             <div class="card hero-date-card h-100">
                 <div class="date-bubble">
-                    <span class="date-day">{{ today_day | default("02") }}</span>
-                    <span class="date-month">{{ today_month | default("July") }}</span>
+                    <span class="date-day">{{ today_date}}</span>
+                    <span class="date-month">{{ today_month}}</span>
                 </div>
-                <p class="hero-sub mt-3 mb-0">Welcome back, <b>{{ username | default("Admin") }}</b></p>
+                <p class="hero-sub mt-3 mb-0">Welcome back, <b>{{ username}}</b></p>
                 <p class="hero-sub mb-0" style="font-size:11px; margin-top:4px;">Your personal hacker dashboard.</p>
             </div>
         </div>
@@ -29,23 +29,17 @@
                     <a class="see-all" href="{{ url_for('labs') }}">See all →</a>
                 </div>
                 <div class="labs-hscroll">
-                    {% for lab in recent_labs | default([
-                        {"name":"Active Directory Recon","status":"Active","color":"#ff5a36","icon":"🛡️","flags":3},
-                        {"name":"SQL Injection Basics","status":"Active","color":"#2f6fed","icon":"💻","flags":2},
-                        {"name":"Buffer Overflow 101","status":"Locked","color":"#9499a6","icon":"🔒","flags":4},
-                        {"name":"XSS Playground","status":"Active","color":"#9fef00","icon":"🕸️","flags":1},
-                        {"name":"Privilege Escalation","status":"Active","color":"#c87dff","icon":"⬆️","flags":5}
-                    ]) %}
-                    <div class="lab-hcard">
-                        <div class="lab-hicon" style="background:{{ lab.color }}20; border-color:{{ lab.color }}40;">
+                    {% for lab in recent_labs%}
+                    <a class="lab-hcard text-decoration-none text-reset" href="{{url_for('labs_view',lab_id=lab.id)}}">
+                        <!-- <div class="lab-hicon" style="background:{{ lab.color }}20; border-color:{{ lab.color }}40;">
                             <span style="font-size:22px;">{{ lab.icon }}</span>
-                        </div>
+                        </div> -->
                         <div class="lab-hname">{{ lab.name }}</div>
                         <div class="lab-hmeta">
                             <span class="pill-tag {{ 'active' if lab.status == 'Active' else 'locked' }}">{{ lab.status }}</span>
-                            <span class="lab-flags">🚩 {{ lab.flags }}</span>
+                            <span class="lab-flags">🚩 {{ lab.flags|length }}</span>
                         </div>
-                    </div>
+                    </a>
                     {% endfor %}
                 </div>
             </div>
@@ -58,9 +52,7 @@
                         <p class="gh-sub"><b>{{ contributions_year_total | default(0) }}</b> contributions in the last year</p>
                     </div>
                     <div class="gh-meta-stats">
-                        <div class="gh-stat"><span class="gh-stat-val">{{ longest_streak | default(0) }}</span><span class="gh-stat-lbl">Best Streak</span></div>
-                        <div class="gh-stat"><span class="gh-stat-val">{{ streak_days | default(0) }}</span><span class="gh-stat-lbl">Current</span></div>
-                        <div class="gh-stat"><span class="gh-stat-val">{{ total_active_days}}</span><span class="gh-stat-lbl">Total Active</span></div>
+                        <div class="gh-stat"><span class="gh-stat-val">{{ account_days}}</span><span class="gh-stat-lbl">Total Active</span></div>
                     </div>
                 </div>
 
@@ -141,14 +133,14 @@
         <div class="col-6 col-sm-3 col-xl-2">
             <div class="card stat-tile">
                 <span class="st-icon">💀</span>
-                <span class="st-val">{{ boxes_pwned | default(0) }}</span>
+                <span class="st-val">{{ boxes_pwned}}</span>
                 <span class="st-lbl">Boxes Pwned</span>
             </div>
         </div>
         <div class="col-6 col-sm-3 col-xl-2">
             <div class="card stat-tile">
                 <span class="st-icon">🚩</span>
-                <span class="st-val">{{ flags_captured | default(0) }}</span>
+                <span class="st-val">{{ flags_captured}}</span>
                 <span class="st-lbl">Flags</span>
             </div>
         </div>
@@ -162,17 +154,11 @@
 
         {# Streak — just two numbers #}
         <div class="col-6 col-sm-3 col-xl-2">
-            <div class="card streak-card h-100">
-                <div class="streak-num-block">
-                    <span class="streak-big">{{ account_days | default(0) }}</span>
-                    <span class="streak-lbl">Days Since Joined</span>
-                </div>
-                <div class="streak-divider"></div>
-                <div class="streak-num-block">
-                    <span class="streak-big accent">{{ streak_days | default(0) }}</span>
-                    <span class="streak-lbl">Day Streak</span>
-                </div>
-            </div>
+            <div class="card stat-tile">
+                <span class="st-icon">⏱</span>
+                <span class="st-val">{{ account_days}}</span>
+                <span class="st-lbl">Days Since Joined</span>
+        </div>
         </div>
         <div class="col-6 col-sm-3 col-xl-2">
             <a class="card action-card text-decoration-none" href="{{ url_for('labs') }}">
@@ -181,7 +167,7 @@
                     <span class="action-name">Github</span>
                     <span class="action-sub">The storehouse of webpage source code.</span>
                     <span class="action-sub">Just look how does this even work.</span>
-1                </div>
+                </div>
                 <span class="action-arrow" style="color:#ff5a36;">→</span>
             </a>
         </div>
@@ -311,28 +297,18 @@
             <div class="card h-100">
                 <div class="card-title-row">
                     <h2>🖥️ Active Sessions</h2>
-                    <div class="dropdown-pill"><span class="live-dot"></span>{{ session_count | default(3) }} live</div>
+                    <div class="dropdown-pill"><span class="live-dot"></span>{{ session_count}} live</div>
                 </div>
                 <div class="session-list">
-                    {% for s in active_sessions | default([
-                        {"lab":"Active Directory Recon","user":"You","initials":"ME","elapsed":"42m","cpu":62,"ram":48,"status":"running"},
-                        {"lab":"SQL Injection Basics","user":"You","initials":"ME","elapsed":"1h 05m","cpu":24,"ram":31,"status":"idle"}
-                    ]) %}
+                    {% for s in labs %}
                     <div class="session-row">
                         <span class="session-status {{ s.status }}"></span>
-                        <div class="session-avatar">{{ s.initials }}</div>
+                        <div class="session-avatar">{{username}}</div>
                         <div class="session-body">
-                            <div class="session-top"><span class="session-lab">{{ s.lab }}</span><span class="session-user">{{ s.user }}</span></div>
+                            <div class="session-top"><span class="session-lab">{{ s.name}}</span><span class="session-user">{{username}}</span></div>
                             <div class="session-meters">
-                                <span class="meter-label">CPU</span>
-                                <div class="meter-track"><div class="meter-fill" style="width:{{ s.cpu }}%;"></div></div>
-                                <span class="meter-label">RAM</span>
-                                <div class="meter-track"><div class="meter-fill" style="width:{{ s.ram }}%;"></div></div>
+                                <span class="meter-label">{{s.status}}</span>
                             </div>
-                        </div>
-                        <div class="session-side">
-                            <span class="session-elapsed">{{ s.elapsed }}</span>
-                            <a href="{{ url_for('labs') }}" class="session-stop">Stop</a>
                         </div>
                     </div>
                     {% else %}

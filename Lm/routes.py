@@ -4,14 +4,18 @@ from Lm.forms import LoginForm, RegisterForm, LabForm, FlagForm
 from Lm import app, db
 from Lm.models import User, Lab, Flag
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 @app.route("/")
 @login_required
 def home():
     total_labs = Lab.query.filter_by(user_id=current_user.id).count()
-    active_labs = Lab.query.filter_by(user_id=current_user.id, status='in-progress').count()
+    labs = Lab.query.filter_by(user_id=current_user.id, status='Active').all()
+    pwned_labs = Lab.query.filter_by(user_id=current_user.id, status='pwned').count()
     total_flags = Flag.query.join(Lab).filter(Lab.user_id==current_user.id).count()
-    return render_template('home.html', total_labs=total_labs, active_labs=active_labs, total_flags=total_flags)
+    account_days = (datetime.utcnow()-current_user.date_joined).days
+    recent_labs = Lab.query.filter_by(user_id = current_user.id).order_by(Lab.date_started.desc()).limit(5).all()
+    return render_template('home.html', total_labs=total_labs,labs=labs,boxes_pwned=pwned_labs,flags_captured=total_flags, today_date = datetime.utcnow().day, today_month = datetime.utcnow().strftime('%B'),username=current_user.username,account_days=account_days, recent_labs=recent_labs, session_count = len(labs))
 
 @app.route("/labs", methods=['GET'])
 @login_required
@@ -75,10 +79,52 @@ def add_flag(lab_id):
     else:
         abort(403)
 
-@app.route("/labs/<int:lab_id>/update")
+@app.route("/flags/<int:flag_id>/delete")
+@login_required
+def delete_flag(flag_id):
+    flag = Flag.query.join(Lab).filter(flag_id==flag_id,Lab.user_id==current_user.id).first()
+    if flag:
+        db.session.delete(flag)
+        db.session.commit()
+        return redirect(url_for('labs_view',lab_id=flag.lab_id))
+    else:
+        abort(403)
+
+        
+
+
+@app.route("/labs/<int:lab_id>/update", methods=['GET','POST'])
 @login_required
 def labs_update(lab_id):
     lab=Lab.query.filter_by(user_id=current_user.id,id=lab_id).first()
+    if lab== None:
+        abort(404)
+    form = LabForm(obj=lab)
+    if request.method == 'GET':
+        if lab.platform not in [choice[0] for choice in form.platform.choices if choice[0] != 'Other']:
+            form.platform.data = 'Other'
+            form.other_platform.data = lab.platform
+        if lab.os not in (choice[0] for choice in form.os.choices if choice[0] != 'Other'):
+            form.os.data = 'Other'
+            form.other_os.data = lab.os
+    if form.validate_on_submit():
+        if form.platform.data == 'Other':
+            lab.platform = form.other_platform.data
+        else:
+            lab.platform = form.platform.data
+        if form.os.data == 'Other':
+            lab.os = form.other_os.data
+        else:
+            lab.os = form.os.data
+        lab.name = form.name.data
+        lab.difficulty = form.difficulty.data
+        lab.ip_address = form.ip_address.data
+        lab.notes = form.notes.data
+        lab.url = form.url.data
+        db.session.commit()
+        return redirect(url_for('labs_view',lab_id=lab_id))
+    return render_template('add_lab.html',form=form,edit_mode=True)
+    
 
 @app.route("/labs/<int:lab_id>/delete")
 @login_required
