@@ -18,9 +18,14 @@
             <a href="{{ url_for('labs_update', lab_id=lab.id) }}" class="btn-submit-lab">
                 <i class="bi bi-pencil"></i><span>Update Info</span>
             </a>
-            <a href="{{ url_for('labs_delete', lab_id=lab.id) }}" class="btn-submit-lab">
+            <a href="{{ url_for('labs_delete', lab_id=lab.id) }}" class="btn-submit-lab" onclick="return confirm('Are you sure?')">
                 <i class="bi bi-pencil"></i><span>Delete Lab</span>
             </a>
+            {%if lab.status!='Pwned'%}
+            <a href="{{ url_for('status', lab_id=lab.id) }}" class="btn-submit-lab" onclick="return confirm('Are you sure?')">
+                <i class="bi bi-pencil"></i><span>Mark as Pwned</span>
+            </a>
+            {%endif%}
         </div>
     </div>
 
@@ -110,7 +115,7 @@
                             {%for flags in flag%}
                                 <code class="flag-inline">{{ flags.flag_value }}</code>
                                 <i class="bi bi-check-circle-fill flag-check {{flags.flag_type}}"></i>
-                                    <a href="{{ url_for('delete_flag',flag_id=flags.flag_id) }}" class="btn-submit-lab">
+                                    <a href="{{ url_for('delete_flag',flag_id=flags.flag_id) }}" class="btn-submit-lab" onclick="return confirm('Are you sure?')">
                                         <i class="bi bi-pencil"></i><span>Delete</span>
                                     </a>
                             {%endfor%}
@@ -147,6 +152,13 @@
             <p class="dl-empty">No notes recorded for this lab yet.</p>
             {% endif %}
         </section>
+        <div class="ah-center">
+            <div class="article-kicker">... platform badges ...</div>
+            <h1>{{ lab.name }}</h1>
+            {% if lab.status == 'Pwned' %}
+                <span class="article-h1">{{ lab.date_pwned.strftime('%b %d, %Y') }}</span>
+            {% endif %}
+        </div>
 
     </article>
 

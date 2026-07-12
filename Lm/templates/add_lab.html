@@ -1,5 +1,5 @@
 {%extends "layouts.html" %}
-{%block title%} Add Lab {%endblock%}
+{%block title%} {{l}}{%endblock%}
 {%block content%}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 <section class="content">
@@ -15,7 +15,7 @@
             <div class="lab-form-header">
                 <div class="lfh-icon">⚗️</div>
                 <div class="lfh-text">
-                    <h1>Create New Lab</h1>
+                    <h1>{{l}}</h1>
                     <p>Log a new box, room, or challenge you're working through.</p>
                 </div>
                 <a href="{{ url_for('labs') }}" class="lfh-back">← Back to labs</a>

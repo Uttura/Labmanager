@@ -1,8 +1,9 @@
 from flask import render_template, flash, redirect, url_for, request,abort
 from flask_login import login_user, login_required, logout_user, current_user
-from Lm.forms import LoginForm, RegisterForm, LabForm, FlagForm
+from Lm.forms import LoginForm, RegisterForm, LabForm, FlagForm, GithubForm
 from Lm import app, db
 from Lm.models import User, Lab, Flag
+from crpyto_utills import encrypt_token
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -11,11 +12,12 @@ from datetime import datetime
 def home():
     total_labs = Lab.query.filter_by(user_id=current_user.id).count()
     labs = Lab.query.filter_by(user_id=current_user.id, status='Active').all()
-    pwned_labs = Lab.query.filter_by(user_id=current_user.id, status='pwned').count()
+    pwned_labs = Lab.query.filter_by(user_id=current_user.id, status='Pwned').count()
     total_flags = Flag.query.join(Lab).filter(Lab.user_id==current_user.id).count()
     account_days = (datetime.utcnow()-current_user.date_joined).days
     recent_labs = Lab.query.filter_by(user_id = current_user.id).order_by(Lab.date_started.desc()).limit(5).all()
-    return render_template('home.html', total_labs=total_labs,labs=labs,boxes_pwned=pwned_labs,flags_captured=total_flags, today_date = datetime.utcnow().day, today_month = datetime.utcnow().strftime('%B'),username=current_user.username,account_days=account_days, recent_labs=recent_labs, session_count = len(labs))
+
+    return render_template('home.html', total_labs=total_labs,labs=labs,boxes_pwned=pwned_labs,flags_captured=total_flags, today_date = datetime.utcnow().day, today_month = datetime.utcnow().strftime('%B'),this_year=datetime.utcnow().year,username=current_user.username,account_days=account_days, recent_labs=recent_labs, session_count = len(labs))
 
 @app.route("/labs", methods=['GET'])
 @login_required
@@ -23,7 +25,17 @@ def labs():
     labs = Lab.query.filter_by(user_id=current_user.id).order_by(Lab.date_started.desc()).all()
 
     return render_template('labs.html', labs=labs)
-
+@app.route("/labs/<int:lab_id>/status")
+@login_required
+def status(lab_id):
+    lab = Lab.query.filter_by(user_id=current_user.id,id=lab_id).first()
+    if lab==None:
+        abort(403)
+    lab.status = "Pwned"
+    lab.date_pwned=datetime.utcnow()
+    db.session.commit()
+    return redirect(url_for('labs_view',lab_id=lab.id))
+    
 
 @app.route("/labs/new", methods=['GET', 'POST'])
 @login_required
@@ -49,7 +61,7 @@ def labs_new():
         db.session.commit()
         flash('Lab created!', 'success')
         return redirect(url_for('labs'))
-    return render_template('add_lab.html', form=form)
+    return render_template('add_lab.html', form=form,l="ADD LAB")
 @app.route("/labs/<int:lab_id>", methods=['GET'])
 @login_required
 def labs_view(lab_id):
@@ -123,7 +135,7 @@ def labs_update(lab_id):
         lab.url = form.url.data
         db.session.commit()
         return redirect(url_for('labs_view',lab_id=lab_id))
-    return render_template('add_lab.html',form=form,edit_mode=True)
+    return render_template('add_lab.html',form=form,edit_mode=True,l="EDIT LAB")
     
 
 @app.route("/labs/<int:lab_id>/delete")
@@ -171,3 +183,19 @@ def logout():
     logout_user()
     flash("You have been Logged Out.")
     return redirect(url_for('home'))
+
+@app.route("/settings",methods=['GET','POST'])
+@login_required
+def settings():
+    form = GithubForm
+    if form.validate_on_submit():
+        github_owner=form.github_owner.data   
+        github_repo=form.github_repo.data     
+        github_path=form.github_path.data
+        encrypted_github_token=encrypt_token(form.github_token.data)
+        if User.id == current_user.id:
+            user = User(github_owner=github_owner,github_path=github_path,github_repo=github_repo,github_token=encrypted_github_token)
+            db.session.add(user)
+        
+
+

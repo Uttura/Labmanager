@@ -36,3 +36,9 @@ class FlagForm(FlaskForm):
     flag_value = StringField('Flag',validators=[DataRequired()])
     flag_type = SelectField('Flag Type',validate_choice=[DataRequired()], choices=[('Root', 'Root'), ('User','User'), ('Other','Other')])
     submit = SubmitField('Add_Flag')
+class GithubForm(FlaskForm):
+    github_owner=StringField('Github Owner')
+    github_repo=StringField('Github Repo')
+    github_path=StringField('Github Path')
+    github_token=PasswordField('Github Token')
+

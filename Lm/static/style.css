@@ -274,25 +274,126 @@ html, body {
 }
 .session-stop:hover { background: rgba(255,90,54,.12); color: #ff8c75; }
 
-/* ─── Compact contribution (month) ─── */
-.contrib-grid {
-    display: grid; grid-auto-flow: column;
-    grid-template-rows: repeat(7,1fr);
-    gap: 3px; overflow-x: auto; padding-bottom: 3px;
+/* ═══════════════════════════════════════════════
+   CAPSULE WEEKLY CHART
+═══════════════════════════════════════════════ */
+.capsule-card {
+    display: flex;
+    flex-direction: column;
 }
-.contrib-grid-compact .contrib-cell { width: 12px; height: 12px; border-radius: 3px; }
-.contrib-cell { width: 14px; height: 14px; border-radius: 3px; background: rgba(255,255,255,.07); }
-.contrib-cell[data-level="1"] { background: rgba(255,90,54,.28); }
-.contrib-cell[data-level="2"] { background: rgba(255,90,54,.52); }
-.contrib-cell[data-level="3"] { background: rgba(255,90,54,.76); }
-.contrib-cell[data-level="4"] { background: var(--accent); }
-.contrib-cell.today { outline: 2px solid rgba(255,255,255,.75); outline-offset: -1px; }
-.contrib-legend {
-    display: flex; align-items: center; gap: 4px;
-    margin-top: 12px; font-size: 10px; color: var(--muted);
-}
-.contrib-legend .contrib-cell { width: 9px; height: 9px; }
 
+.capsule-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 8px;
+    flex: 1;
+    min-height: 160px;
+}
+
+.capsule-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    height: 100%;
+}
+
+.capsule-bar-track {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.capsule-bar {
+    position: relative;
+    width: 100%;
+    max-width: 34px;
+    border-radius: 999px;
+    background: rgba(255,90,54,.16);
+    transition: height .3s ease, background .2s, transform .15s;
+    cursor: default;
+}
+
+/* Empty days: diagonal hatch pattern instead of solid fill */
+.capsule-bar.empty {
+    background: repeating-linear-gradient(
+        135deg,
+        rgba(255,255,255,.07),
+        rgba(255,255,255,.07) 3px,
+        transparent 3px,
+        transparent 7px
+    );
+    border: 1px solid var(--border);
+}
+
+/* Filled intensity levels — same accent ramp as your heatmaps */
+.capsule-bar[data-level="1"] { background: rgba(255,90,54,.32); }
+.capsule-bar[data-level="2"] { background: rgba(255,90,54,.55); }
+.capsule-bar[data-level="3"] { background: rgba(255,90,54,.78); }
+.capsule-bar[data-level="4"] { background: var(--accent); box-shadow: 0 4px 14px rgba(255,90,54,.35); }
+
+/* Peak / featured day — brightest, shows tooltip by default */
+.capsule-bar.peak {
+    background: var(--accent);
+    box-shadow: 0 4px 18px rgba(255,90,54,.45);
+}
+.capsule-bar.peak .capsule-tooltip { opacity: 1; transform: translate(-50%, -6px); }
+
+.capsule-bar:not(.empty):hover {
+    transform: scaleX(1.08);
+}
+.capsule-bar:not(.empty):hover .capsule-tooltip {
+    opacity: 1;
+    transform: translate(-50%, -6px);
+}
+
+.capsule-tooltip {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 4px);
+    background: rgba(10,26,38,.95);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 7px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s, transform .15s;
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+}
+.capsule-tooltip::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 7px; height: 7px;
+    background: rgba(10,26,38,.95);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    transform: translateX(-50%) rotate(45deg);
+}
+
+.capsule-day-lbl {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+@media (max-width: 575.98px) {
+    .capsule-chart { min-height: 130px; gap: 6px; }
+    .capsule-bar { max-width: 24px; }
+}
 /* ═══════════════════════════════════════════════
    ROW 3 — Terminal / Script Hub
 ═══════════════════════════════════════════════ */
@@ -929,7 +1030,13 @@ html, body {
 /* ── Sections ── */
 .article-section { margin-bottom: 28px; }
 .article-section:last-child { margin-bottom: 0; }
-
+.article-h1 {
+    display: block;            /* or keep flex, but block is fine */
+    font-size: 14px;           /* slightly smaller maybe */
+    color: var(--muted);       /* or any colour you like */
+    text-align: center;
+    margin-top: 8px;
+}
 .article-h2 {
     display: flex;
     align-items: center;
