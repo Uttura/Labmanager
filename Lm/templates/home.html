@@ -217,30 +217,40 @@
                     <span class="terminal-title">script_hub.py</span>
                     <a class="see-all" href="{{ url_for('labs') }}" style="margin-left:auto;">manage →</a>
                 </div>
-                <div class="terminal-body">
-                    <div class="t-prompt"># Connected scripts — {{ script_count | default(0) }} loaded</div>
-                    {% for sc in linked_scripts | default([
-                        {"name":"port_scanner.py","description":"Fast TCP SYN scan with banner grab","last_run":"2h ago","status":"ok"},
-                        {"name":"subdomain_enum.py","description":"Brute-force DNS subdomains via wordlist","last_run":"yesterday","status":"ok"},
-                        {"name":"exploit_ms17.py","description":"EternalBlue PoC runner","last_run":"Jun 25","status":"warn"},
-                        {"name":"shell_gen.py","description":"Reverse shell one-liner generator","last_run":"Never","status":"idle"}
-                    ]) %}
-                    <div class="t-script-row">
-                        <span class="t-status-dot {{ sc.status }}"></span>
-                        <div class="t-script-info">
-                            <span class="t-script-name">{{ sc.name }}</span>
-                            <span class="t-script-desc">// {{ sc.description }}</span>
+                {%if github_connected%}
+                    <div class="terminal-body">
+                        <div class="t-prompt"># Connected scripts — {{ script_count | default(0) }} loaded</div>
+                        {% for sc in linked_scripts | default([
+                            {"name":"port_scanner.py","description":"Fast TCP SYN scan with banner grab","last_run":"2h ago","status":"ok"},
+                            {"name":"subdomain_enum.py","description":"Brute-force DNS subdomains via wordlist","last_run":"yesterday","status":"ok"},
+                            {"name":"exploit_ms17.py","description":"EternalBlue PoC runner","last_run":"Jun 25","status":"warn"},
+                            {"name":"shell_gen.py","description":"Reverse shell one-liner generator","last_run":"Never","status":"idle"}
+                        ]) %}
+                        <div class="t-script-row">
+                            <span class="t-status-dot {{ sc.status }}"></span>
+                            <div class="t-script-info">
+                                <span class="t-script-name">{{ sc.name }}</span>
+                                <span class="t-script-desc">// {{ sc.description }}</span>
+                            </div>
+                            <div class="t-script-right">
+                                <span class="t-script-time">{{ sc.last_run }}</span>
+                                <a href="/api/run/{{ sc.name | replace('.py','') }}" class="t-run-btn">▶ run</a>
+                            </div>
                         </div>
-                        <div class="t-script-right">
-                            <span class="t-script-time">{{ sc.last_run }}</span>
-                            <a href="/api/run/{{ sc.name | replace('.py','') }}" class="t-run-btn">▶ run</a>
-                        </div>
+                        {% else %}
+                        <div class="t-prompt" style="opacity:.5;">// No scripts connected yet. Add via API.</div>
+                        {% endfor %}
+                        <div class="t-cursor">█</div>
                     </div>
-                    {% else %}
-                    <div class="t-prompt" style="opacity:.5;">// No scripts connected yet. Add via API.</div>
-                    {% endfor %}
-                    <div class="t-cursor">█</div>
-                </div>
+                {%else%}
+                    <div class="gh-connect-empty">
+                        <div class="gh-connect-empty-icon"><i class="bi bi-github"></i></div>
+                        <p>Connect your GitHub account to start syncing scripts.</p>
+                        <a href="{{ url_for('github') }}" class="btn-submit-lab">
+                            <i class="bi bi-github"></i><span>Connect GitHub</span>
+                        </a>
+                    </div>
+                {%endif%}
             </div>
         </div>
     </div>

@@ -41,4 +41,4 @@ class GithubForm(FlaskForm):
     github_repo=StringField('Github Repo')
     github_path=StringField('Github Path')
     github_token=PasswordField('Github Token')
-
+    submit = SubmitField('Connect Github')

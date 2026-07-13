@@ -8,4 +8,4 @@ def encrypt_token(plaintext):
     return f.encrypt(plaintext.encode()).decode()
 def decrypt_token(ciphertext):
     f=get_fernet()
-    return f.encrypt(ciphertext.encode()).decode()
+    return f.decrypt(ciphertext.encode()).decode()

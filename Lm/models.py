@@ -8,8 +8,11 @@ class User(db.Model,UserMixin):
     email = db.Column(db.String(120), unique = True, nullable= False)
     password = db.Column(db.String(120), nullable = False)
     date_joined = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    github_owner = db.Column(db.String(100),nullable=True)
+    github_repo = db.Column(db.String(100),nullable=True)
+    github_path = db.Column(db.String(100),nullable=True)
+    github_token = db.Column(db.Text,nullable=True)
     labs = db.relationship('Lab', backref= 'owner', lazy = True)
-    github = db.relationship('Github', backref= 'owner', lazy = True)
 class Lab(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable = False)
@@ -31,10 +34,4 @@ class Flag(db.Model):
     captured_at = db.Column(db.DateTime,nullable=False, default=datetime.utcnow)
     lab_id = db.Column(db.Integer, db.ForeignKey('lab.id'), nullable = False)
 
-class Github(db.Model):
-    github_owner = db.Column(db.String(100),nullable=True)
-    github_repo = db.Column(db.String(100),nullable=True)
-    github_path = db.Column(db.String(100),nullable=True)
-    github_token = db.Column(db.String(200),nullable=True)
-    user_id = db.Column(db.Integer,db.ForeignKey('user.id'),nullable=False)
 

@@ -1,0 +1,97 @@
+{%extends "layouts.html" %}
+{%block title%} Connect GitHub {%endblock%}
+{%block content%}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<section class="content">
+<div class="dash">
+<div class="container-fluid p-0">
+
+    <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+
+        <div class="gh-connect-card">
+
+            {# ── Header ── #}
+            <div class="gh-connect-header">
+                <div class="gh-connect-icon"><i class="bi bi-github"></i></div>
+                <div>
+                    <h1>Connect GitHub</h1>
+                    <p>Link your account to sync script activity.</p>
+                </div>
+            </div>
+
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+
+                {# ── Username ── #}
+                <div class="gh-field mb-3">
+                    {{ form.github_owner.label(class='form-label') }}
+                    <div class="input-icon-wrap">
+                        <i class="bi bi-person input-icon"></i>
+                        {{ form.github_owner(class='form-control has-icon' + (' is-invalid' if form.github_owner.errors else ''), placeholder='octocat') }}
+                    </div>
+                    {% if form.github_owner.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.github_owner.errors %}<div>{{ error }}</div>{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                {# ── Access Token ── #}
+                <div class="gh-field mb-3">
+                    {{ form.github_token.label(class='form-label') }}
+                    <div class="input-icon-wrap">
+                        <i class="bi bi-key input-icon"></i>
+                        {{ form.github_token(class='form-control has-icon' + (' is-invalid' if form.github_token.errors else ''), placeholder='ghp_xxxxxxxxxxxxxxxxxxxx', type='password') }}
+                    </div>
+                    <span class="gh-field-hint"><i class="bi bi-shield-lock"></i> Stored encrypted, never shared.</span>
+                    {% if form.github_token.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.github_token.errors %}<div>{{ error }}</div>{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                {# ── Repository ── #}
+                <div class="gh-field mb-3">
+                    {{ form.github_repo.label(class='form-label') }}
+                    <div class="input-icon-wrap">
+                        <i class="bi bi-journal-code input-icon"></i>
+                        {{ form.github_repo(class='form-control has-icon' + (' is-invalid' if form.github_repo.errors else ''), placeholder='octocat/scripts') }}
+                    </div>
+                    {% if form.github_repo.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.github_repo.errors %}<div>{{ error }}</div>{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {# ── Path ── #}
+                <div class="gh-field mb-3">
+                    {{ form.github_path.label(class='form-label') }}
+                    <div class="input-icon-wrap">
+                        <i class="bi bi-journal-code input-icon"></i>
+                        {{ form.github_path(class='form-control has-icon' + (' is-invalid' if form.github_path.errors else ''), placeholder='octocat/scripts') }}
+                    </div>
+                    {% if form.github_path.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.github_path.errors %}<div>{{ error }}</div>{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="gh-connect-actions">
+                    <a href="{{ url_for('home') }}" class="btn-cancel">Cancel</a>
+                    {{ form.submit(class='btn-submit-lab') }}
+
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+    </div>
+
+</div>
+</div>
+</section>
+{%endblock%}
