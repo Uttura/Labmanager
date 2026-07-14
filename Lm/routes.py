@@ -2,6 +2,7 @@ from flask import render_template, flash, redirect, url_for, request,abort
 from flask_login import login_user, login_required, logout_user, current_user
 from Lm.forms import LoginForm, RegisterForm, LabForm, FlagForm, GithubForm
 from Lm import app, db
+from Lm.github_utills import get_github_script
 from Lm.models import User, Lab, Flag
 from Lm.crpyto_utills import encrypt_token
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -22,7 +23,8 @@ def home():
         and current_user.github_repo
         and current_user.github_token
     )
-    return render_template('home.html', total_labs=total_labs,labs=labs,boxes_pwned=pwned_labs,flags_captured=total_flags,form=form,github_connected=github_connected, today_date = datetime.utcnow().day, today_month = datetime.utcnow().strftime('%B'),this_year=datetime.utcnow().year,username=current_user.username,account_days=account_days, recent_labs=recent_labs, session_count = len(labs))
+    scripts,scripts_count = get_github_script(current_user)
+    return render_template('home.html', total_labs=total_labs,labs=labs,boxes_pwned=pwned_labs,flags_captured=total_flags,form=form,github_connected=github_connected, today_date = datetime.utcnow().day, today_month = datetime.utcnow().strftime('%B'),this_year=datetime.utcnow().year,username=current_user.username,account_days=account_days, recent_labs=recent_labs, session_count = len(labs),linked_scripts=scripts,scripts_count=scripts_count)
 
 @app.route("/labs", methods=['GET'])
 @login_required
@@ -209,7 +211,6 @@ def github():
         form.github_path.data= current_user.github_path
         form.github_owner.data= current_user.github_owner
     return render_template('github.html',form=form)
-
 
         
 
