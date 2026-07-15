@@ -1,0 +1,262 @@
+{%extends "layouts.html" %}
+{%block title%} Settings {%endblock%}
+{%block content%}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<section class="content">
+<div class="dash">
+<div class="container-fluid p-0">
+
+    <div class="settings-header">
+        <div class="lph-icon" style="font-size:20px;">⚙️</div>
+        <div>
+            <h1>Settings</h1>
+            <p>Manage your profile and GitHub integration.</p>
+        </div>
+    </div>
+
+    <div class="card settings-unified-card">
+
+        {# ══════════ SECTION 1: Profile ══════════ #}
+        <div class="settings-section" id="profile-section">
+            <div class="settings-section-head">
+                <h2><i class="bi bi-person-circle"></i> Profile</h2>
+                <button type="button" class="settings-toggle-btn" data-target="profile">
+                    <span class="stb-label">Update</span>
+                    <i class="bi bi-chevron-down stb-chevron"></i>
+                </button>
+            </div>
+
+            <div class="settings-view" data-view="profile">
+                <dl class="article-dl settings-dl-grid">
+                    <div class="dl-row">
+                        <dt>Username</dt>
+                        <dd>{{ current_user.username }}</dd>
+                    </div>
+                    <div class="dl-row">
+                        <dt>Email</dt>
+                        <dd>{{ current_user.email }}</dd>
+                    </div>
+                    <div class="dl-row">
+                        <dt>Date Joined</dt>
+                        <dd>
+                            <span class="byline-item">
+                                <i class="bi bi-calendar3"></i>
+                                {{ current_user.date_joined.strftime('%b %d, %Y') if current_user.date_joined and current_user.date_joined.strftime else current_user.date_joined | default('—') }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div class="dl-row">
+                        <dt>Password</dt>
+                        <dd>Password Secured</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <div class="settings-form" data-form="profile" style="display:none;">
+                <form method="POST" novalidate>
+                    {{ profile_form.hidden_tag() }}
+
+                    <div class="settings-form-grid">
+                        <div class="gh-field">
+                            {{ profile_form.username.label(class='form-label') }}
+                            <div class="input-icon-wrap">
+                                <i class="bi bi-person input-icon"></i>
+                                {{ profile_form.username(class='form-control has-icon' + (' is-invalid' if profile_form.username.errors else '')) }}
+                            </div>
+                            {% if profile_form.username.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in profile_form.username.errors %}<div>{{ error }}</div>{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="gh-field">
+                            {{ profile_form.email.label(class='form-label') }}
+                            <div class="input-icon-wrap">
+                                <i class="bi bi-envelope input-icon"></i>
+                                {{ profile_form.email(class='form-control has-icon' + (' is-invalid' if profile_form.email.errors else '')) }}
+                            </div>
+                            {% if profile_form.email.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in profile_form.email.errors %}<div>{{ error }}</div>{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="gh-field settings-form-full">
+                            {{ profile_form.password.label(class='form-label') }}
+                            <div class="input-icon-wrap">
+                                <i class="bi bi-lock input-icon"></i>
+                                {{ profile_form.password(class='form-control has-icon' + (' is-invalid' if profile_form.password.errors else ''), placeholder='Leave blank to keep current password', autocomplete='new-password') }}
+                            </div>
+                            {% if profile_form.password.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in profile_form.password.errors %}<div>{{ error }}</div>{% endfor %}
+                            </div>
+                            {% endif %}
+                            <span class="gh-field-hint mt-2 d-block"><i class="bi bi-info-circle"></i> Only filled fields will be updated.</span>
+                        </div>
+                    </div>
+
+                    <div class="settings-form-actions">
+                        {{profile_form.submit(class="btn-submit-lab")}}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <hr class="article-rule">
+
+        {# ══════════ SECTION 2: GitHub ══════════ #}
+        <div class="settings-section" id="github-section">
+            <div class="settings-section-head">
+                <h2><i class="bi bi-github"></i> GitHub</h2>
+                <button type="button" class="settings-toggle-btn" data-target="github">
+                    <span class="stb-label">Update</span>
+                    <i class="bi bi-chevron-down stb-chevron"></i>
+                </button>
+            </div>
+
+            <div class="settings-view" data-view="github">
+                <div class="gh-status-strip">
+                    {% if token_saved %}
+                    <span class="status-badge status-active"><span class="status-dot"></span> Token Connected</span>
+                    {% else %}
+                    <span class="status-badge status-idle"><i class="bi bi-x-circle"></i> No Token Saved</span>
+                    {% endif %}
+                </div>
+                <dl class="article-dl settings-dl-grid">
+                    <div class="dl-row">
+                        <dt>Owner</dt>
+                        <dd>
+                            {% if current_user.github_owner %}{{ current_user.github_owner }}
+                            {% else %}<span class="dl-empty">Not set</span>{% endif %}
+                        </dd>
+                    </div>
+                    <div class="dl-row">
+                        <dt>Repository</dt>
+                        <dd>
+                            {% if current_user.github_repo %}<span class="mono">{{ current_user.github_repo }}</span>
+                            {% else %}<span class="dl-empty">Not set</span>{% endif %}
+                        </dd>
+                    </div>
+                    <div class="dl-row">
+                        <dt>Path</dt>
+                        <dd>
+                            {% if current_user.github_path %}<span class="mono">{{ current_user.github_path }}</span>
+                            {% else %}<span class="dl-empty">Not set</span>{% endif %}
+                        </dd>
+                    </div>
+                    <div class="dl-row">
+                        <dt>Access Token</dt>
+                        <dd>
+                            {% if token_saved %}
+                            <span class="mono">Token Saved</span>
+                            <i class="bi bi-check-circle-fill flag-check user"></i>
+                            {% else %}<span class="dl-empty">Not connected</span>{% endif %}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+
+            <div class="settings-form" data-form="github" style="display:none;">
+                <form method="POST" novalidate>
+                    {{ github_form.hidden_tag() }}
+
+                    <div class="settings-form-grid">
+                        <div class="gh-field">
+                            {{ github_form.github_owner.label(class='form-label') }}
+                            <div class="input-icon-wrap">
+                                <i class="bi bi-person input-icon"></i>
+                                {{ github_form.github_owner(class='form-control has-icon' + (' is-invalid' if github_form.github_owner.errors else ''), placeholder='octocat') }}
+                            </div>
+                            {% if github_form.github_owner.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in github_form.github_owner.errors %}<div>{{ error }}</div>{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="gh-field">
+                            {{ github_form.github_repo.label(class='form-label') }}
+                            <div class="input-icon-wrap">
+                                <i class="bi bi-journal-code input-icon"></i>
+                                {{ github_form.github_repo(class='form-control has-icon' + (' is-invalid' if github_form.github_repo.errors else ''), placeholder='scripts') }}
+                            </div>
+                            {% if github_form.github_repo.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in github_form.github_repo.errors %}<div>{{ error }}</div>{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="gh-field">
+                            {{ github_form.github_path.label(class='form-label') }}
+                            <div class="input-icon-wrap">
+                                <i class="bi bi-folder2-open input-icon"></i>
+                                {{ github_form.github_path(class='form-control has-icon' + (' is-invalid' if github_form.github_path.errors else ''), placeholder='scripts/') }}
+                            </div>
+                            {% if github_form.github_path.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in github_form.github_path.errors %}<div>{{ error }}</div>{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="gh-field">
+                            {{ github_form.github_token.label(class='form-label') }}
+                            <div class="input-icon-wrap">
+                                <i class="bi bi-key input-icon"></i>
+                                {{ github_form.github_token(class='form-control has-icon' + (' is-invalid' if github_form.github_token.errors else ''), placeholder='Leave blank to keep current token' if token_saved else 'ghp_xxxxxxxxxxxxxxxxxxxx', type='password', autocomplete='new-password') }}
+                            </div>
+                            {% if github_form.github_token.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in github_form.github_token.errors %}<div>{{ error }}</div>{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <span class="gh-field-hint mt-2 mb-3 d-block"><i class="bi bi-shield-lock"></i> Stored encrypted, never shared.</span>
+
+                    <div class="settings-form-actions">
+                        {{github_form.submit(class="btn-submit-lab")}}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</div>
+</section>
+
+<script>
+(function () {
+    function toggleSection(target) {
+        const view = document.querySelector('.settings-view[data-view="' + target + '"]');
+        const form = document.querySelector('.settings-form[data-form="' + target + '"]');
+        const btn = document.querySelector('.settings-toggle-btn[data-target="' + target + '"]');
+        const isOpen = form.style.display !== 'none';
+
+        form.style.display = isOpen ? 'none' : 'block';
+        view.style.display = isOpen ? 'block' : 'none';
+        btn.classList.toggle('active', !isOpen);
+        btn.querySelector('.stb-label').textContent = isOpen ? 'Update' : 'Cancel';
+    }
+
+    document.querySelectorAll('.settings-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => toggleSection(btn.dataset.target));
+    });
+    document.querySelectorAll('.settings-cancel-btn').forEach(btn => {
+        btn.addEventListener('click', () => toggleSection(btn.dataset.target));
+    });
+
+    {% if github_form.errors %}
+    toggleSection('github');
+    {% elif profile_form.errors %}
+    toggleSection('profile');
+    {% endif %}
+})();
+</script>
+{%endblock%}

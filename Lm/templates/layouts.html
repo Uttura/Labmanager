@@ -35,10 +35,13 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('labs') }}">Labs</a>
                 </li>
-
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('setting') }}">⚙️</a>
+                </li>
+
                 {% else %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('login') }}">Login</a>
@@ -47,6 +50,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('register') }}">Register</a>
                 </li>
+
                 {% endif %}
             </ul>
         </div>

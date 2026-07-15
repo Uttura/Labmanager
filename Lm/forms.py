@@ -41,4 +41,24 @@ class GithubForm(FlaskForm):
     github_repo=StringField('Github Repo')
     github_path=StringField('Github Path')
     github_token=PasswordField('Github Token')
-    submit = SubmitField('Connect Github')
+    submit = SubmitField("Connect Github", name='submit_github')
+class ProfileForm(FlaskForm):
+    username = StringField("Username",validators=[Optional()])
+    email = StringField("Email",validators=[Email(),Optional()])
+    password = PasswordField("Password",validators=[Optional()])
+    confirm_password = PasswordField("Confirm Password",validators=[Optional(),EqualTo('password',message="Password must match.")])
+    submit = SubmitField("Update", name='submit_profile')
+    def __init__(self,user_id,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.user_id=user_id
+    def validate_username(self, username):
+        if username.data:
+            user = User.query.filter(User.username == username.data, User.id != self.user_id).first()
+            if user:
+                raise ValidationError('Username is already taken.')
+
+    def validate_email(self, email):
+        if email.data:
+            user = User.query.filter(User.email == email.data, User.id != self.user_id).first()
+            if user:
+                raise ValidationError('Email is already registered.')

@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, url_for, request,abort
 from flask_login import login_user, login_required, logout_user, current_user
-from Lm.forms import LoginForm, RegisterForm, LabForm, FlagForm, GithubForm
+from Lm.forms import LoginForm, RegisterForm, LabForm, FlagForm, GithubForm, ProfileForm
 from Lm import app, db
 from Lm.github_utills import get_github_script
 from Lm.models import User, Lab, Flag
@@ -211,6 +211,70 @@ def github():
         form.github_path.data= current_user.github_path
         form.github_owner.data= current_user.github_owner
     return render_template('github.html',form=form)
+
+@app.route("/settings",methods=["GET","POST"])
+@login_required
+def setting():
+    profile_form=ProfileForm(user_id=current_user.id)
+    github_form = GithubForm(obj=current_user)
+    if request.method=="GET":
+        profile_form.username.data=current_user.username
+        profile_form.email.data=current_user.email
+        github_form.github_token.data = ''
+        token_saved = bool(current_user.github_token)
+        return render_template('settings.html',profile_form=profile_form,github_form=github_form,token_saved=token_saved)
+    if 'submit_profile' in request.form:
+        profile_form=ProfileForm(user_id=current_user.id,formdata=request.form)
+        github_form=GithubForm()
+        profile_change=False
+        if profile_form.validate_on_submit():
+            if profile_form.username.data and profile_form.username.data != current_user.username:
+                current_user.username = profile_form.username.data
+                profile_change=True
+            if profile_form.email.data and profile_form.email.data != current_user.email:
+                current_user.email = profile_form.email.data
+                profile_change=True
+            if profile_form.password.data:
+                password_hash = generate_password_hash(profile_form.password.data)
+                current_user.password = password_hash
+                profile_change=True
+            if profile_change==True:
+                db.session.commit()
+                flash("User Profile Updated Successfully!","success")
+                return redirect(url_for("setting"))
+            else:
+                flash("No changes were made.", "info")
+    elif 'submit_github' in request.form:
+        github_form = GithubForm(formdata=request.form)
+        profile_form=ProfileForm(user_id=current_user.id)
+        github_change=False
+        if github_form.validate_on_submit():
+            if github_form.github_repo.data and github_form.github_repo.data != current_user.github_repo:
+                current_user.github_repo = github_form.github_repo.data
+                github_change=True
+            if github_form.github_path.data and github_form.github_path.data != current_user.github_path:
+                current_user.github_path = github_form.github_path.data
+                github_change=True
+            if github_form.github_owner.data and github_form.github_owner.data != current_user.github_owner:
+                current_user.github_owner = github_form.github_owner.data
+                github_change=True
+            if github_form.github_token.data:
+                git = encrypt_token(github_form.github_token.data)
+                current_user.github_token = git
+                github_change = True
+            if github_change == True:
+                db.session.commit()
+                flash("Github User Profile Updated Sucessfully!","success")
+                return redirect(url_for("setting"))
+            else:
+                flash("No changes were made.", "info")
+    token_saved = bool(current_user.github_token)
+    return render_template('settings.html',profile_form=profile_form,github_form=github_form,token_saved=token_saved)        
+
+                
+
+
+
 
         
 
