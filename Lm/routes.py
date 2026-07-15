@@ -271,6 +271,13 @@ def setting():
     token_saved = bool(current_user.github_token)
     return render_template('settings.html',profile_form=profile_form,github_form=github_form,token_saved=token_saved)        
 
+@app.route("/debug-github")
+@login_required
+def debug_github():
+    from Lm.github_utills import get_github_script
+    result = get_github_script(current_user)
+    return f"Result: {result} (type: {type(result)})"
+
                 
 
 
