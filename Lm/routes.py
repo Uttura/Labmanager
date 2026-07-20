@@ -6,7 +6,8 @@ from Lm.github_utills import get_github_script
 from Lm.models import User, Lab, Flag
 from Lm.crpyto_utills import encrypt_token
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
+from sqlalchemy import func
 
 @app.route("/")
 @login_required
@@ -24,7 +25,37 @@ def home():
         and current_user.github_token
     )
     scripts,scripts_count = get_github_script(current_user)
-    return render_template('home.html', total_labs=total_labs,labs=labs,boxes_pwned=pwned_labs,flags_captured=total_flags,form=form,github_connected=github_connected, today_date = datetime.utcnow().day, today_month = datetime.utcnow().strftime('%B'),this_year=datetime.utcnow().year,username=current_user.username,account_days=account_days, recent_labs=recent_labs, session_count = len(labs),linked_scripts=scripts,scripts_count=scripts_count)
+
+    today = datetime.utcnow().date()
+    days_since_sunday = (today.weekday() + 1) % 7
+    sunday = today - timedelta(days=days_since_sunday)
+    week_days = []
+    for days in range(7):
+        day= sunday + timedelta(days=days)
+        d = day.strftime("%a")
+        flag_count = Flag.query.join(Lab).filter(Lab.user_id == current_user.id,func.date(Flag.captured_at)==day).count()
+        week_days.append({'label':d,'count':flag_count})
+    max_count = max(day['count'] for day in week_days) if week_days else 0
+    for day in week_days:
+        c = day['count']
+        if max_count == 0:
+            day['pct'] = 0
+            day['level'] = 0
+        else:
+            day['pct'] = (c/max_count)*100
+
+            if c==0:
+                day['level'] = 0
+            elif c<=2:
+                day['level'] = 1
+            elif c<=4:
+                day['level'] = 2
+            elif c<=6:
+                day['level'] = 3
+            else:
+                day['level'] = 4
+        day['is_peak'] = (c== max_count and max_count>0)
+    return render_template('home.html',week_days=week_days,week_label='This Week', total_labs=total_labs,labs=labs,boxes_pwned=pwned_labs,flags_captured=total_flags,form=form,github_connected=github_connected, today_date = datetime.utcnow().day, today_month = datetime.utcnow().strftime('%B'),this_year=datetime.utcnow().year,username=current_user.username,account_days=account_days, recent_labs=recent_labs, session_count = len(labs),linked_scripts=scripts,scripts_count=scripts_count)
 
 @app.route("/labs", methods=['GET'])
 @login_required
@@ -32,7 +63,7 @@ def labs():
     labs = Lab.query.filter_by(user_id=current_user.id).order_by(Lab.date_started.desc()).all()
 
     return render_template('labs.html', labs=labs)
-@app.route("/labs/<int:lab_id>/status")
+@app.route("/labs/<lab_id>/status")
 @login_required
 def status(lab_id):
     lab = Lab.query.filter_by(user_id=current_user.id,id=lab_id).first()
@@ -69,7 +100,7 @@ def labs_new():
         flash('Lab created!', 'success')
         return redirect(url_for('labs'))
     return render_template('add_lab.html', form=form,l="ADD LAB")
-@app.route("/labs/<int:lab_id>", methods=['GET'])
+@app.route("/labs/<lab_id>", methods=['GET'])
 @login_required
 def labs_view(lab_id):
     lab = Lab.query.filter_by(user_id=current_user.id,id = lab_id).first()
@@ -80,7 +111,7 @@ def labs_view(lab_id):
     form = FlagForm()
     return render_template('view_lab.html',lab=lab,form=form,flag=flag)
 
-@app.route("/labs/<int:lab_id>/add_flag", methods=['POST'])
+@app.route("/labs/<lab_id>/add_flag", methods=['POST'])
 @login_required
 def add_flag(lab_id):
     form = FlagForm()
@@ -98,7 +129,7 @@ def add_flag(lab_id):
     else:
         abort(403)
 
-@app.route("/flags/<int:flag_id>/delete")
+@app.route("/flags/<flag_id>/delete")
 @login_required
 def delete_flag(flag_id):
     flag = Flag.query.join(Lab).filter(flag_id==flag_id,Lab.user_id==current_user.id).first()
@@ -112,7 +143,7 @@ def delete_flag(flag_id):
         
 
 
-@app.route("/labs/<int:lab_id>/update", methods=['GET','POST'])
+@app.route("/labs/<lab_id>/update", methods=['GET','POST'])
 @login_required
 def labs_update(lab_id):
     lab=Lab.query.filter_by(user_id=current_user.id,id=lab_id).first()
@@ -145,7 +176,7 @@ def labs_update(lab_id):
     return render_template('add_lab.html',form=form,edit_mode=True,l="EDIT LAB")
     
 
-@app.route("/labs/<int:lab_id>/delete")
+@app.route("/labs/lab_id>/delete")
 @login_required
 def labs_delete(lab_id):
     lab=Lab.query.filter_by(user_id=current_user.id,id=lab_id).first()
@@ -270,13 +301,6 @@ def setting():
                 flash("No changes were made.", "info")
     token_saved = bool(current_user.github_token)
     return render_template('settings.html',profile_form=profile_form,github_form=github_form,token_saved=token_saved)        
-
-@app.route("/debug-github")
-@login_required
-def debug_github():
-    from Lm.github_utills import get_github_script
-    result = get_github_script(current_user)
-    return f"Result: {result} (type: {type(result)})"
 
                 
 

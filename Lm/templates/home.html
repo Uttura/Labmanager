@@ -46,19 +46,11 @@
             <div class="card capsule-card h-100">
                 <div class="card-title-row">
                     <h2>📊 Weekly Activity</h2>
-                    <span class="see-all">{{ week_label | default('This week') }}</span>
+                    <span class="see-all">{{ week_label}}</span>
                 </div>
 
                 <div class="capsule-chart">
-                    {% for day in week_days | default([
-                        {"label":"S","count":0,"level":0,"pct":0},
-                        {"label":"M","count":3,"level":2,"pct":45},
-                        {"label":"T","count":5,"level":3,"pct":74},
-                        {"label":"W","count":6,"level":4,"pct":90},
-                        {"label":"T","count":0,"level":0,"pct":0},
-                        {"label":"F","count":0,"level":0,"pct":0},
-                        {"label":"S","count":0,"level":0,"pct":0}
-                    ]) %}
+                    {% for day in week_days %}
                     <div class="capsule-col">
                         <div class="capsule-bar-track">
                             <div class="capsule-bar {{ 'empty' if day.count == 0 else '' }} {{ 'peak' if day.is_peak else '' }}"

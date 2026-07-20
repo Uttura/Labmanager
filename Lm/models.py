@@ -2,8 +2,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime
 from Lm import db
+from flask_login import UserMixin
+import uuid
 class User(db.Model,UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True,default=str(uuid.uuid4()))
     username = db.Column(db.String(80), unique = True, nullable = False)
     email = db.Column(db.String(120), unique = True, nullable= False)
     password = db.Column(db.String(120), nullable = False)
@@ -14,7 +16,7 @@ class User(db.Model,UserMixin):
     github_token = db.Column(db.Text,nullable=True)
     labs = db.relationship('Lab', backref= 'owner', lazy = True)
 class Lab(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True,default=str(uuid.uuid4()))
     name = db.Column(db.String(120), nullable = False)
     platform = db.Column(db.String(120), nullable = False)
     os = db.Column(db.String(60), nullable=True)
@@ -24,14 +26,14 @@ class Lab(db.Model):
     date_pwned = db.Column(db.DateTime, nullable=True, default=None)
     notes = db.Column(db.Text, nullable=True)
     url = db.Column(db.String(255), nullable=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable = False)
     status = db.Column(db.String(20), nullable = False, default='Active')
     flags = db.relationship('Flag', backref='lab', lazy = True, cascade='all, delete-orphan')
 class Flag(db.Model):
-    flag_id = db.Column(db.Integer, primary_key = True)
+    flag_id = db.Column(db.String(36), primary_key = True,default=str(uuid.uuid4()))
     flag_value = db.Column(db.String(200), nullable = False)
     flag_type = db.Column(db.String(20),nullable=False)
     captured_at = db.Column(db.DateTime,nullable=False, default=datetime.utcnow)
-    lab_id = db.Column(db.Integer, db.ForeignKey('lab.id'), nullable = False)
+    lab_id = db.Column(db.String(36), db.ForeignKey('lab.id'), nullable = False)
 
 
